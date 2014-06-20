@@ -1,0 +1,31 @@
+
+config 'olsrd'
+	option 'IpVersion' '4'
+	option 'FIBMetric' 'flat'
+	option 'LinkQualityAlgorithm' 'etx_ff'
+	option 'OlsrPort' '698'
+	option 'Willingness' '3'
+	option 'NatThreshold' '1.0'
+	option 'AllowNoInt' 'yes'
+	option 'TcRedundancy' '2'
+	option 'MprCoverage' '5'
+	option 'LinkQualityFishEye' '1 '
+	option 'LinkQualityLevel' '0'
+	option 'UseHysteresis' 'no'
+
+config 'LoadPlugin'
+	option 'library' 'olsrd_cfgparser.dll'
+	option 'ignore' '1'
+
+config 'InterfaceDefaults'
+	option 'Ip4Broadcast' '255.255.255.255'
+	option 'HelloInterval' '5.0'
+	option 'HelloValidityTime' '100.0'
+	option 'TcInterval' '3.0'
+	option 'TcValidityTime' '500.0'
+	option 'MidInterval' '30.0'
+	option 'MidValidityTime' '500.0'
+	option 'HnaInterval' '30.0'
+	option 'HnaValidityTime' '500.0'
+
+

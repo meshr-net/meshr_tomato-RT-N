@@ -1,0 +1,8 @@
+
+config 'netconfig' 'netconfig'
+
+config 'general' 'general'
+	option 'local_restrict' '1'
+
+config 'community' 'community'
+	option 'name' ''

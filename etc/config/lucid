@@ -1,0 +1,34 @@
+config lucid main
+	option pollinterval 15000
+	option daemon 1
+	option debug 1
+	list supports tcpserver
+	list supports server
+
+config DirectoryPublisher webroot
+	option name 'Webserver Share'
+	option physical www
+	option virtual ''
+	option domain ''
+	
+config LuciWebPublisher luciweb
+	option name 'LuCI Webapplication'
+	option physical ''
+	list virtual /luci
+	option domain ''
+	option home 1
+
+	
+config tcpserver httpd
+	option entrypoint "luci.lucid.http"
+	list supports DirectoryPublisher
+	list supports LuciWebPublisher
+	
+config daemon http
+	option slave httpd
+	list address 127.0.0.1:8084
+	list publisher webroot
+	list publisher luciweb
+	option enabled 1
+	
+

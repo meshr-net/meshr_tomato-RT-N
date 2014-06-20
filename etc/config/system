@@ -1,0 +1,11 @@
+
+config 'system' 'system'
+	option 'zonename' 'UTC'
+	option 'timezone' 'GMT0'
+	option 'cronloglevel' '8'
+	option 'hostname' 'OpenWrt'
+	option 'location' 'Earth'
+	option 'latitude' '55'
+	option 'longitude' '55'
+	option 'conloglevel' '8'
+

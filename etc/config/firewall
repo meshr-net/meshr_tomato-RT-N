@@ -1,0 +1,26 @@
+
+config 'defaults'
+	option 'syn_flood' '1'
+	option 'input' 'DROP'
+	option 'output' 'ACCEPT'
+	option 'forward' 'DROP'
+
+config 'zone'
+	option 'name' 'lan'
+	option 'input' 'ACCEPT'
+	option 'output' 'ACCEPT'
+	option 'forward' 'DROP'
+	option 'network' 'lan'
+
+config 'zone'
+	option 'name' 'wan'
+	option 'input' 'DROP'
+	option 'output' 'ACCEPT'
+	option 'forward' 'DROP'
+	option 'masq' '1'
+	option 'network' 'wan'
+
+config 'forwarding'
+	option 'src' 'lan'
+	option 'dest' 'wan'
+

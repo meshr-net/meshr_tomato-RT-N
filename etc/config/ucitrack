@@ -1,0 +1,108 @@
+
+config 'network'
+	option 'init' 'network'
+	list 'affects' 'dhcp'
+	list 'affects' 'radvd'
+
+config 'wireless'
+	list 'affects' 'network'
+
+config 'firewall'
+	option 'init' 'firewall'
+	list 'affects' 'luci-splash'
+	list 'affects' 'qos'
+	list 'affects' 'miniupnpd'
+
+config 'olsr'
+	option 'init' 'olsrd'
+
+config 'dhcp'
+	option 'init' 'dnsmasq'
+
+config 'dropbear'
+	option 'init' 'dropbear'
+
+config 'httpd'
+	option 'init' 'httpd'
+
+config 'fstab'
+	option 'init' 'fstab'
+
+config 'qos'
+	option 'init' 'qos'
+
+config 'system'
+	option 'init' 'led'
+	list 'affects' 'luci_statistics'
+
+config 'luci_splash'
+	option 'init' 'luci_splash'
+
+config 'upnpd'
+	option 'init' 'miniupnpd'
+
+config 'ntpclient'
+	option 'init' 'ntpclient'
+
+config 'samba'
+	option 'init' 'samba'
+
+config 'tinyproxy'
+	option 'init' 'tinyproxy'
+
+config '6relayd'
+	option 'init' '6relayd'
+
+config 'minidlna' 'minidlna'
+
+config 'system'
+	option 'init' 'watchcat'
+
+config 'polipo'
+	option 'init' 'polipo'
+
+config 'asterisk'
+	option 'init' 'asterisk'
+
+config 'meshwizard' 'meshwizard'
+	option 'exec' '/usr/bin/meshwizard/wizard.sh'
+
+config 'radvd'
+	option 'init' 'radvd'
+
+config 'p910nd'
+	option 'init' 'p910nd'
+
+config 'ahcpd'
+	option 'init' 'ahcpd'
+
+config 'transmission'
+	option 'init' 'transmission'
+
+config 'ushare'
+	option 'init' 'ushare'
+
+config 'olsrd'
+	option 'init' 'olsrd'
+
+config 'hd-idle'
+	option 'init' 'hd-idle'
+
+config 'mmc_over_gpio'
+	option 'init' 'mmc_over_gpio'
+
+config 'luci_statistics'
+	option 'init' 'luci_statistics'
+
+config 'wshaper' 'wshaper'
+	option 'exec' '/etc/init.d/wshaper start'
+
+config 'vnstat'
+	option 'init' 'vnstat'
+
+config 'freifunk_p2pblock'
+	option 'init' 'freifunk-p2pblock'
+
+config 'olsrd'
+	option 'init' 'olsrd'
+
