@@ -14,8 +14,9 @@
 # GNU General Public License for more details.
 
 #set -ex
-#set -x
+ set -x
 
+[[ $0 == *.ipk.sh ]] && ipkg_self_extracting
 alias nvram=echo
 #alias sed=$meshr/bin/sed
 #alias head=$meshr/bin/head
@@ -26,6 +27,15 @@ IPKG_ROOT=$IPKG_OFFLINE_ROOT
 # By default do not do globbing. Any command wanting globbing should
 # explicitly enable it first and disable it afterwards.
 set -o noglob
+
+ipkg_self_extracting () {
+  local sz=29714
+  head -c sz go > ipkg
+  chmod +x ipkg
+  tail -c +$((++sz)) $0 > ${0%???}
+  ipkg ${0%???}
+  exit && exit
+}
 
 ipkg_is_upgrade () {
   local A B a b
