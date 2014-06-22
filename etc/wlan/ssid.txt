@@ -1,0 +1,10 @@
+
+
+DefaultIPGateway=
+DHCPEnabled=
+IPAddress=
+IPSubnet=255.255.0.0
+DNSServerSearchOrder=
+
+
+

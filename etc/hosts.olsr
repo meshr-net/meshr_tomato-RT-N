@@ -1,0 +1,10 @@
+### this /etc/hosts file is overwritten regularly by olsrd
+### do not edit
+
+127.0.0.1	localhost
+::1		localhost
+
+192.168.1.117	ubuntu.olsr	# myself
+192.168.1.99	dell.olsr	# 192.168.1.99
+
+### written by olsrd at Sat Jan 11 18:59:41 2014

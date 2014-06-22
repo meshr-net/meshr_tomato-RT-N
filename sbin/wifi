@@ -1,0 +1,258 @@
+#!/bin/sh
+# Copyright (C) 2006 OpenWrt.org
+
+. $meshr/lib/functions.sh
+#set -x
+usage() {
+	cat <<EOF
+Usage: $0 [down|detect]
+enables (default), disables or detects a wifi configuration.
+EOF
+	exit 1
+}
+
+find_net_config() {(
+	local vif="$1"
+	local cfg
+	local ifname
+
+	config_get cfg "$vif" network
+
+	[ -z "$cfg" ] && {
+		include $meshr/lib/network
+		scan_interfaces
+
+		config_get ifname "$vif" ifname
+
+		cfg="$(find_config "$ifname")"
+	}
+	[ -z "$cfg" ] && return 0
+	echo "$cfg"
+)}
+
+
+bridge_interface() {(
+	local cfg="$1"
+	[ -z "$cfg" ] && return 0
+
+	include $meshr/lib/network
+	scan_interfaces
+
+	for cfg in $cfg; do
+		config_get iftype "$cfg" type
+		[ "$iftype" = bridge ] && config_get "$cfg" ifname
+		prepare_interface_bridge "$cfg"
+		return $?
+	done
+)}
+
+prepare_key_wep() {
+	local key="$1"
+	local hex=1
+
+	echo -n "$key" | grep -qE "[^a-fA-F0-9]" && hex=0
+	[ "${#key}" -eq 10 -a $hex -eq 1 ] || \
+	[ "${#key}" -eq 26 -a $hex -eq 1 ] || {
+		[ "${key:0:2}" = "s:" ] && key="${key#s:}"
+        	key="$(echo -n "$key" | hexdump -ve '1/1 "%02x" ""')"
+	}
+	echo "$key"
+}
+
+wifi_fixup_hwmode() {
+	local device="$1"
+	local default="$2"
+	local hwmode hwmode_11n
+
+	config_get channel "$device" channel
+	config_get hwmode "$device" hwmode
+	case "$hwmode" in
+		11bg) hwmode=bg;;
+		11a) hwmode=a;;
+		11b) hwmode=b;;
+		11g) hwmode=g;;
+		11n*)
+			hwmode_11n="${hwmode##11n}"
+			case "$hwmode_11n" in
+				a|g) ;;
+				default) hwmode_11n="$default"
+			esac
+			config_set "$device" hwmode_11n "$hwmode_11n"
+		;;
+		*)
+			hwmode=
+			if [ "${channel:-0}" -gt 0 ]; then 
+				if [ "${channel:-0}" -gt 14 ]; then
+					hwmode=a
+				else
+					hwmode=g
+				fi
+			else
+				hwmode="$default"
+			fi
+		;;
+	esac
+	config_set "$device" hwmode "$hwmode"
+}
+
+wifi_updown() {
+#set -x	
+	[ enable = "$1" ] && {
+		#wifi_updown disable "$2"
+		scan_wifi
+	}
+	for device in ${2:-$DEVICES}; do (
+<<COMMENT1
+		config_get disabled "$device" disabled
+		[ 1 == "$disabled" ] && {
+			echo "'$device' is disabled"
+			set disable
+		}
+		config_get iftype "$device" type
+		if eval "type ${1}_$iftype" 2>$meshr/tmp/null >$meshr/tmp/null; then
+			eval "scan_$iftype '$device'"
+			eval "${1}_$iftype '$device'" || echo "$device($iftype): ${1} failed"
+		else
+			echo "$device($iftype): Interface type not supported"
+		fi
+COMMENT1
+		channel="$(uci -q get wireless.$device.channel)" 
+    ssid="$(uci -q get wireless.$device\_iface.ssid)" 
+    mode="$(uci -q get wireless.$device\_iface.mode)"
+    ip4addr="$(uci -q get meshwizard.netconfig.$device\_ip4addr)"
+    $meshr/usr/sbin/olsrd.exe -d 2 -int >  $meshr/tmp/olsrd2.int
+    guid=`cat $meshr/tmp/olsrd2.int | grep $device | sed "s/.*{\(.*\)}.*/\1/g"`
+    
+    wlan dc $guid
+    while [ -f $meshr/var/run/wifi.txt ]; do sleep 1; done
+    $meshr/bin/start-stop-daemon.exe stop meshr-watchdog
+    
+    uci set wireless.$device\_iface.guid=$guid
+    echo guid=$guid> $meshr/etc/wifi.txt
+    echo mode=$mode>> $meshr/etc/wifi.txt
+    echo ssid=$ssid>> $meshr/etc/wifi.txt
+    echo channel=$channel ssid=$ssid mode=$mode guid=$guid
+    [ -n "$guid" ] && [ -n "$ssid" ] && {
+      if wlan gp $guid $ssid | grep "^Got error " && wlan gp $guid $ssid-adhoc | grep "^Got error " ; then
+        [ -f $meshr/etc/wlan/$ssid.xml ] || ( cp $meshr/etc/wlan/meshr.net.xml $meshr/etc/wlan/$ssid.xml && sed -i "s/meshr.net/$ssid/g" $meshr/etc/wlan/$ssid.xml )
+        wlan sp $guid $meshr/etc/wlan/$ssid.xml
+      fi
+      if [ "$ssid" = "meshr.net" ]; then
+        #cmd.exe "/c ${meshr//\//\\}\\lib\\upload.bat"
+        ip4addr=`cat $meshr/tmp/curl.htm | head -n 1 | grep -E '^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$'`
+        [ -z $ip4addr ] && ip4addr=`cat $meshr/etc/wlan/meshr.net.txt | grep "10.177" | sed 's/.*\(10.177.*\)\".*/\1/g'`
+        if [ -z $ip4addr ]; then # Random IP allocation
+          n3=`echo $guid | sed 's/.\+\([0-9a-fA-F]\{2\}\)$/\1/g'`
+          n4=`echo $guid | sed 's/.\+\([0-9a-fA-F]\{2\}\)..$/\1/g'`
+          n3=$((0x$n3 % 125 + 128))
+          n4=$((0x$n4))
+          ip4addr=10.177.$n3.$n4
+        fi
+      fi     
+      cp -f $meshr/etc/DualServer $meshr/bin/DualServer.ini &&  sed -i "s/10.177.0.1/$ip4addr/g" $meshr/bin/DualServer.ini
+      [ -f $meshr/etc/wlan/$ssid.txt ] || ( cp $meshr/etc/wlan/ssid.txt $meshr/etc/wlan/$ssid.txt )
+      sed -i "s/IPAddress=.*/IPAddress=$ip4addr/g" $meshr/etc/wlan/$ssid.txt
+      chmod 777 $meshr/etc/wlan/$ssid.txt
+      #TODO: check Internet; add to uci
+      uci set wireless.$device\_iface.ip4addr=$ip4addr
+      uci set wireless.$device\_iface.diversity=0
+      uci commit wireless
+      uci set meshwizard.netconfig.$device\_config=1
+      uci set meshwizard.netconfig.$device\_channel=$channel
+      uci set meshwizard.netconfig.$device\_ip4addr=$ip4addr
+      #uci set meshwizard.general.ip4addr=$ip4addr
+      uci commit meshwizard
+      #windev=`cat $meshr/tmp/olsrd2.int | grep $device | sed "s/.*} \(.*\)/\1/g"`
+      #IP="$(uci -q get wireless.$device\_iface.IP)"
+      #( wlan conn $guid $ssid $mode $ssid | grep "Got error" ) && wlan conn $guid $ssid $mode $ssid-adhoc
+      #cmd "/c ${meshr//\//\\}\\lib\\watchdog.bat fg"
+    }
+	); done
+}
+
+wifi_detect() {
+	for driver in ${2:-$DRIVERS}; do (
+		if eval "type detect_$driver" 2>$meshr/tmp/null >$meshr/tmp/null; then
+			eval "detect_$driver" || echo "$driver: Detect failed" >&2
+		else
+			echo "$driver: Hardware detection not supported" >&2
+		fi
+	); done
+}
+
+start_net() {(
+	local iface="$1"
+	local config="$2"
+	local vifmac="$3"
+
+	#[ -f "$meshr/var/run/$iface.pid" ] && kill "$(cat $meshr/var/run/${iface}.pid)" 2>$meshr/tmp/null
+	[ -z "$config" ] || {
+		include $meshr/lib/network
+		scan_interfaces
+		for config in $config; do
+			setup_interface "$iface" "$config" "" "$vifmac"
+		done
+	}
+)}
+
+set_wifi_up() {
+	local cfg="$1"
+	local ifname="$2"
+	uci_set_state wireless "$cfg" up 1
+	uci_set_state wireless "$cfg" ifname "$ifname"
+}
+
+set_wifi_down() {
+	local cfg="$1"
+	local vifs vif vifstr
+
+	[ -f "$meshr/var/run/wifi-${cfg}.pid" ] &&
+		kill "$(cat "$meshr/var/run/wifi-${cfg}.pid")" 2>$meshr/tmp/null
+	uci_revert_state wireless "$cfg"
+	config_get vifs "$cfg" vifs
+	for vif in $vifs; do
+		uci_revert_state wireless "$vif"
+	done
+}
+
+scan_wifi() {
+	local cfgfile="$1"
+	DEVICES=
+	config_cb() {
+		local type="$1"
+		local section="$2"
+
+		# section start
+		case "$type" in
+			wifi-device)
+				append DEVICES "$section"
+				config_set "$section" vifs ""
+				config_set "$section" ht_capab ""
+			;;
+		esac
+
+		# section end
+		config_get TYPE "$CONFIG_SECTION" TYPE
+		case "$TYPE" in
+			wifi-iface)
+				config_get device "$CONFIG_SECTION" device
+				config_get vifs "$device" vifs 
+				append vifs "$CONFIG_SECTION"
+				config_set "$device" vifs "$vifs"
+			;;
+		esac
+	}
+	config_load "${cfgfile:-wireless}"
+}
+
+DEVICES=
+DRIVERS=
+include $meshr/lib/wifi
+scan_wifi
+
+case "$1" in
+	down) wifi_updown "disable" "$2";;
+	detect) wifi_detect "$2";;
+	--help|help) usage;;
+	*) wifi_updown "enable" "$2";;
+esac

@@ -2,8 +2,8 @@ config 'community' 'profile'
 	option 'name' 'Meshr.net'
 	option 'homepage' 'http://meshr.net/'
 	option 'ssid' 'meshr.net'
-	option 'latitude' '55'
-	option 'longitude' '55'
+	option 'mesh_network' '10.177.0.0/16'
+	option 'splash_network' '10.177.253.0/24'
 
 config 'defaults' 'interface'
 	option 'netmask' '255.0.0.0'
@@ -68,9 +68,5 @@ config 'LoadPlugin'
 
 config 'LoadPlugin'
 	option 'library' 'olsrd_secure.so.0.5'
-	option 'ignore' '1'
-
-config 'LoadPlugin'
-	option 'library' 'olsrd_cfgparser.dll'
 	option 'ignore' '1'
 	

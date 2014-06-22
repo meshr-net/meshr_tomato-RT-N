@@ -1,0 +1,50 @@
+#!/bin/sh
+#sh.bat ../sbin/luci-reload meshwizard
+#set -x
+echo $PATH
+. $meshr/lib/functions.sh
+export PATH=$PATH:/${meshr/:/\/}/bin
+apply_config() {
+	config_get init "$1" init
+	config_get exec "$1" exec
+	config_get test "$1" test
+
+	echo "$2" > "$meshr/var/run/luci-reload-status"
+#"${exec/^\//$meshr}"
+echo apply_config: ${exec/\/usr/$meshr/usr}
+	[ -n "$init" ] && reload_init "$2" "$init" "$test"
+	[ -n "$exec" ] && reload_exec "$2" "$meshr$exec" "$test"
+}
+
+reload_exec() {
+	local service="$1"
+	local ok="$3"
+	set -- $2
+	local cmd="$1"; shift
+	[[ $cmd == /* ]] && $cmd=$meshr$cmd
+	
+	[ -x "$cmd" ] && {
+		echo "Reloading $service... $cmd '$@' "
+		( $cmd "$@" ) 1>&2
+		#( $cmd "$@" ) 2>>$meshr/tmp/null 1>&2
+		[ -n "$ok" -a "$?" != "$ok" ] && echo '!!! Failed to reload' $service '!!!'
+	}
+}
+
+reload_init() {
+	[ -x $meshr/etc/init.d/$2 ] && $meshr/etc/init.d/$2 enabled && {
+		echo "Reloading init $1... "
+		$meshr/etc/init.d/$2 reload >$meshr/tmp/null 2>&1
+		[ -n "$3" -a "$?" != "$3" ] && echo '!!! Failed to reload' $1 '!!!'
+	}
+}
+
+lock "$meshr/var/run/luci-reload"
+
+config_load ucitrack
+for i in $*; do
+	config_foreach apply_config $i $i
+done
+
+rm -f "$meshr/var/run/luci-reload-status"
+lock -u "$meshr/var/run/luci-reload"

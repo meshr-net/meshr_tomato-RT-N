@@ -1,0 +1,29 @@
+#!/bin/sh
+
+RESOLV_CONF=/tmp/resolv.conf
+
+case "$1" in
+        bound|renew)
+                echo interface $interface up...
+                ifconfig $interface up
+                echo set IP $ip $subnet
+                ifconfig $interface $ip netmask $subnet
+                exit 
+                echo adding default route $router
+                route add default gw $router
+                for ii in $dns; do
+                        echo adding nameserver $ii
+                        echo nameserver $ii >> $RESOLV_CONF
+                done
+                # trigger dnsmasq restart
+                #kill -HUP `pidof dnsmasq`
+                ;;
+        deconfig)
+                echo setting interface $interface to 0.0.0.0
+                ifconfig $interface 0.0.0.0
+                #ifconfig $interface down
+                echo deleting $RESOLV_CONF
+                echo -n > $RESOLV_CONF
+                #kill -HUP `pidof dnsmasq`
+                ;;
+esac

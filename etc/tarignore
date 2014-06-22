@@ -1,0 +1,4 @@
+etc/init.d/*
+etc/rc.common
+etc/uci-defaults/*
+etc/config/profile_*

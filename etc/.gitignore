@@ -1,0 +1,6 @@
+*
+!/init.d
+!/rc.common
+!/uci-defaults
+!/.gitignore
+!/config/profile_*
