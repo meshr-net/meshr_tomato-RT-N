@@ -53,8 +53,8 @@ local function _action(cmd, ...)
    local e = fs.readfile(rootfs .. "/tmp/opkg.stderr")
    local o = fs.readfile(rootfs .. "/tmp/opkg.stdout")
   
-  --os.execute(rootfs .. "/bin/cat " .. rootfs .. "/tmp/opkg.stderr >> " .. rootfs .. "/messages.log")
-  --os.execute(rootfs .. "/bin/cat " .. rootfs .. "/tmp/opkg.stdout >> " .. rootfs .. "/messages.log")
+  --os.execute("cat " .. rootfs .. "/tmp/opkg.stderr >> " .. rootfs .. "/messages.log")
+  --os.execute("cat " .. rootfs .. "/tmp/opkg.stdout >> " .. rootfs .. "/messages.log")
    
   --fs.unlink(rootfs .. "/tmp/opkg.stderr")
    --fs.unlink(rootfs .. "/tmp/opkg.stdout")

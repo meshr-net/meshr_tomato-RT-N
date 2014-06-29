@@ -1,34 +1,65 @@
 #!/bin/sh
 # online install: wget https://github.com/meshr-net/meshr_tomato-RT-N/raw/release/install.bat -O - | sh
 # offline install: ipkg install meshr_tomato-RT-N.ipk && meshr
-#set -x
+# ( meshrp='qq'; meshr='/opt/meshr'; [ -f $meshr/install.bat ] && $meshr/install.bat || (cd /tmp && wget https://github.com/meshr-net/meshr_tomato-RT-N/raw/release/install.bat -O - | sh))&
+# check admin rights
+if [ `whoami` != 'root' ];then
+  sudo $0 $@ && exit
+fi
+set -x
+
+nvram=1
+case $1 in
+setpasswd) 
+  [ -n nvram ] && nvram set meshrp="$2" && nvram commit
+  exit;;
+checkpasswd)
+  [ -n nvram ] && [ "$2" = "$(nvram get meshrp)" ] && echo "ok"
+  exit;;
+boot)
+  iptables -I INPUT 1 -i eth1 -p tcp --dport 1979 -j ACCEPT
+  iptables -I INPUT 1 -i eth1 -p udp --dport 698 -j ACCEPT
+  $meshr/bin/start-stop-daemon start $meshr/lib/watchdog.bat
+  exit;;
+Uninstall)
+  if [ -n nvram ];then
+    boot=`nvram get script_fire`
+    [ -n "$boot" ] && ( echo "$boot" | grep "^( meshr=" && ( 
+      boot=`echo "$boot" | grep -v '^( meshr='"`
+      nvram set script_fire="$boot" && nvram commit ))
+  fi
+  #dnsmasq
+  #killall
+  #[ -n $meshr ] && rm -rf $meshr
+  exit;;  
+esac
 
 [ ${1:0:1} = / ] && meshr=$1
-[ -z $meshr ] && ls /opt && meshr=/opt/meshr
+[ -z $meshr ] && [ -w /opt ] && meshr=/opt/meshr
 [ -z $meshr ] && meshr=/tmp/meshr
+
+#autostart
+if [ -n nvram ];then
+  boot=`nvram get script_fire`
+  [ -n "$boot" ] && ( echo "$boot" | grep 'meshr' || ( 
+    boot=`echo -e "$boot\n( meshr='$meshr'; [ -f $meshr/install.bat ] && $meshr/install.bat boot)&"`
+    nvram set script_fire="$boot" && nvram commit ))
+fi
+#nvram commit
+exit
 export meshr
 PATH="$PATH:$meshr/bin"
-
-branch=release
-bundle=tmp/meshr.bundle
-git bundle list-heads $bundle | grep "/master" && branch=master
-git clone -b $branch $bundle meshr || ( echo "can't clone"
-  tmp=meshr-$RANDOM
-  git clone -b $branch $bundle $tmp
-  call services.bat stop
-  cp -rf meshr/etc/config $tmp/etc/config
-  cp -rf $tmp/* meshr/ )
-rm $bundle
-
+cd $meshr
+git config core.bare false
 git config user.email "user_tomato-RT-N@meshr.net"
 git config user.name "`uname -n`@`uname -m`"
 git remote set-url origin https://github.com/meshr-net/meshr_tomato-RT-N.git
-git rm . -r --cached && git add . 
-cd $meshr/etc/config
-git ls-files | tr '\n' ' ' | xargs git update-index --assume-unchanged 
-cd $meshr
 git fetch origin
-git reset --hard origin/$branch
+git reset --hard
+git rm . -r --cached && git add . 
+( cd $meshr/etc/config && git ls-files | tr '\n' ' ' | xargs git update-index --assume-unchanged )
 
-. lib\bssids.bat > tmp\bssids.log
+. lib/bssids.bat > tmp/bssids.log
 touch -am $meshr/usr/lib/ipkg/lists/meshr
+./defaults.bat
+./install.bat boot

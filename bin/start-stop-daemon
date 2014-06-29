@@ -1,0 +1,21 @@
+start(){
+  # $meshr/bin/failsafe.sh ?
+  ( nohup $@ && echo $!>$meshr/var/run/$name.pid ) &
+}
+stop(){
+  [ -f $meshr/var/run/$name.pid ] && kill -9 `cat $meshr/var/run/$name.pid`
+}
+
+name=$(basename $2)
+case $1 in
+stop)
+  stop
+  ;;
+start)
+  start
+  ;;
+restart)
+  stop
+  start ${@:2}
+  ;; 
+esac

@@ -86,7 +86,7 @@
 
 					uci:foreach("olsrd", "LoadPlugin", function(s)
 						if s.library == "olsrd_nameservice.so.0.3" and s.latlon_file then
-							fd = io.open(s.latlon_file)
+							fd = require "io".open(s.latlon_file)
 						end
 					end)
 
@@ -97,10 +97,10 @@
 						if data then
 							local line
 							for line in data:gmatch("[^\n]+") do
-								if line:match(";$") then
+								if line:match(";\r?$") then
 									write(line .. "\n")
 								else
-									break
+									---break -- there is comment: /* This file is overwritten regularly by olsrd */
 								end
 							end
 						end

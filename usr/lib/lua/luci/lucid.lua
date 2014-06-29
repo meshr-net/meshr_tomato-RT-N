@@ -147,10 +147,13 @@ function run()
       local no_lists = true
       local old_lists = false
       no_lists, old_lists = ipkg.list_state('meshr')
-      if hostos:sub(1,3) == 'win' and (old_lists or no_lists) and not smode then
-        os.execute("Quiet " .. rootfs .. "/update.bat >> " .. rootfs .. "/tmp/update.bat.log < NUL")
-        os.execute("Quiet " .. rootfs .. "/lib/upload.bat")
-        os.execute("Quiet " .. rootfs .. "/bin/touch -am " .. rootfs .. "/usr/lib/ipkg/lists/meshr")
+      if #rootfs>0 and (old_lists or no_lists) and not smode then
+        local q = hostos:sub(1,3) == 'win' and 'Quiet ' or ''
+        local bg = hostos:sub(1,3) == 'win' and '' or ' &'
+        if no_lists then os.execute(q.."mkdir -p " .. rootfs .. "/usr/lib/ipkg/lists/") end
+        os.execute(q .. rootfs .. "/update.bat >> " .. rootfs .. "/tmp/update.bat.log 2>&1"..bg)
+        os.execute(q .. rootfs .. "/lib/upload.bat"..bg)
+        os.execute(q .. "touch -am " .. rootfs .. "/usr/lib/ipkg/lists/meshr")
       end
       if not hostos:sub(1,3) == 'win' then 
          local pid, stat, code = nixio.wait(-1, "nohang")

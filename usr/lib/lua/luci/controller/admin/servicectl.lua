@@ -58,7 +58,7 @@ function action_restart(args)
         if false and nixio.fs.isdirectory( rootfs .. "/%SystemDrive%" ) then
           nixio.exec("/bin/sh", "rm -rf $meshr/%SystemDrive%")
         else
-          require "os".execute("Quiet " .. rootfs .. "/bin/sh.bat ".. table.concat(command," "))
+          require "os".execute("Quiet sh.bat ".. table.concat(command," "))
           --nixio.exec("/bin/sh", unpack(command))
         end         
       else

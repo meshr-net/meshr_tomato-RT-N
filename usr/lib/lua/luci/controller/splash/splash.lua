@@ -53,7 +53,7 @@ end
 
 function action_activate()
   if smode and luci.http.formvalue("accept") then
-    local redirect_url = "/meshr.exe"
+    local redirect_url = "/meshr_win32.exe"
     if require "luci.model.ipkg".file_exists("/www" .. redirect_url) then
       luci.http.redirect(redirect_url)
     else  
@@ -92,12 +92,12 @@ end
 function get_installer()
   local string = require "string"
   local http = require "luci.http"
-  local installer = fs.readfile("/var/meshr.exe")
+  --local installer = fs.readfile("/var/meshr.exe")
   --installer = fs.readfile("/bin/uci.exe")
 
   --http.header('Pragma: public'); 
   --http.header('Expires: 0'); 
-  require "luci.httpclient.receiver".request_to_file("https://github.com/meshr-net/meshr_win32/releases/download/v0.1.0/meshr-0.1_win32.exe")
+  require "luci.httpclient.receiver".request_to_file("https://github.com/meshr-net/meshr_win32/releases/download/latest/meshr_win32.exe")
   --http.write(installer)
 end
 

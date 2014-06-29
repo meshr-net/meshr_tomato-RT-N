@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-	http://www.apache.org/licenses/LICENSE-2.0
+   http://www.apache.org/licenses/LICENSE-2.0
 ]]
 
 local fs = require "luci.fs"
@@ -30,26 +30,26 @@ local clist = { }
 local slist = { }
 
 for k,v in ipairs(list) do
-	local name = uci:get_first(string.gsub(v,".*/",""), "community", "name") or "?"
-	local n = string.gsub(v, ".*" .. profiles, "")
-	table.insert(slist, { n, name })
+   local name = uci:get_first(string.gsub(v,".*/",""), "community", "name") or "?"
+   local n = string.gsub(v, ".*" .. profiles, "")
+   table.insert(slist, { n, name })
 end
 table.sort(slist, function(a,b) return string.lower(a[2]) < string.lower(b[2]) end)
 for k,v in ipairs(slist) do
-	community:value(v[1], v[2])
+   community:value(v[1], v[2])
 end
 
 
 n = Map("system", translate("Basic system settings"))
 function n.on_after_commit(self)
-	luci.http.redirect(luci.dispatcher.build_url("admin", "freifunk", "basics"))
-	local ssid = m.uci:get("freifunk", "community", "ssid") or m.uci:get("profile_" .. m.uci:get("freifunk", "community", "name"), "profile", "ssid") or ""
-	if require "luci.model.ipkg".file_exists("/etc/wlan/" .. ssid .. ".txt") then
+   luci.http.redirect(luci.dispatcher.build_url("admin", "freifunk", "basics"))
+   local ssid = m.uci:get("freifunk", "community", "ssid") or m.uci:get("profile_" .. m.uci:get("freifunk", "community", "name"), "profile", "ssid") or ""
+   if require "luci.model.ipkg".file_exists("/etc/wlan/" .. ssid .. ".txt") then
     local ipv4 = fs.readfile(rootfs .. "/etc/wlan/" .. ssid .. ".txt"):match("IPAddress=[^\n]-([%d%.]+)") or ''
     print(ipv4)
     --os.execute(rootfs .. "/lib/upload.bat >> " .. rootfs .. "/messages.log 2>&1")
     if ipv4 then
-      os.execute(rootfs .. "/bin/sed -i \"s/\\(.*_ip4addr'\\).*/\\1 '" .. ipv4 .. "'/g\" " .. rootfs .. "/etc/config/meshwizard")
+      os.execute("sed -i \"s/\\(.*_ip4addr'\\).*/\\1 '" .. ipv4 .. "'/g\" " .. rootfs .. "/etc/config/meshwizard")
     end
   end  
 end
@@ -86,38 +86,38 @@ local deflat = uci:get_first("system", "system", "latitude") or uci:get_first(co
 local deflon = uci:get_first("system", "system", "longitude") or uci:get_first(co, "community", "longitude") or 10
 local zoom = 12
 if ( deflat == 52 and deflon == 10 ) then
-	zoom = 4
+   zoom = 4
 end
 
 OpenStreetMapLonLat = luci.util.class(AbstractValue)
     
 function OpenStreetMapLonLat.__init__(self, ...)
-	AbstractValue.__init__(self, ...)
-	self.template = "cbi/osmll_value"
-	self.latfield = nil
-	self.lonfield = nil
-	self.centerlat = ""
-	self.centerlon = ""
-	self.zoom = "0"
-	self.width = "100%" --popups will ignore the %-symbol, "100%" is interpreted as "100"
-	self.height = "600"
-	self.popup = false
-	self.displaytext="OpenStreetMap" --text on button, that loads and displays the OSMap
-	self.hidetext="X" -- text on button, that hides OSMap
+   AbstractValue.__init__(self, ...)
+   self.template = "cbi/osmll_value"
+   self.latfield = nil
+   self.lonfield = nil
+   self.centerlat = ""
+   self.centerlon = ""
+   self.zoom = "0"
+   self.width = "100%" --popups will ignore the %-symbol, "100%" is interpreted as "100"
+   self.height = "600"
+   self.popup = false
+   self.displaytext="OpenStreetMap" --text on button, that loads and displays the OSMap
+   self.hidetext="X" -- text on button, that hides OSMap
 end
 
-	osm = b:option(OpenStreetMapLonLat, "latlon", translate("Find your coordinates with OpenStreetMap"), translate("Select your location with a mouse click on the map. The map will only show up if you are connected to the Internet."))
-	osm.latfield = "latitude"
-	osm.lonfield = "longitude"
-	osm.centerlat = uci:get_first("system", "system", "latitude") or deflat
-	osm.centerlon = uci:get_first("system", "system", "longitude") or deflon
-	osm.zoom = zoom
-	osm.width = "100%"
-	osm.height = "600"
-	osm.popup = false
-	osm.displaytext=translate("Show OpenStreetMap")
-	osm.hidetext=translate("Hide OpenStreetMap")
-	
+   osm = b:option(OpenStreetMapLonLat, "latlon", translate("Find your coordinates with OpenStreetMap"), translate("Select your location with a mouse click on the map. The map will only show up if you are connected to the Internet."))
+   osm.latfield = "latitude"
+   osm.lonfield = "longitude"
+   osm.centerlat = uci:get_first("system", "system", "latitude") or deflat
+   osm.centerlon = uci:get_first("system", "system", "longitude") or deflon
+   osm.zoom = zoom
+   osm.width = "100%"
+   osm.height = "600"
+   osm.popup = false
+   osm.displaytext=translate("Show OpenStreetMap")
+   osm.hidetext=translate("Hide OpenStreetMap")
+   
   -- General settings
   g = n:section(TypedSection, "system", translate("Additional info for network optimization (non-public)"))
   g.anonymous = true 

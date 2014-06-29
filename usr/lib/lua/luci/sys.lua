@@ -178,8 +178,8 @@ end
 -- @return   String containing the free memory amount in kB
 -- @return   String containing the cpu bogomips (number)
 function sysinfo()
-   local cpuinfo = fs.readfile(rootfs .. "/proc/cpuinfo")
-   local meminfo = fs.readfile(rootfs .. "/proc/meminfo")
+   local cpuinfo = fs.readfile((hostos:sub(1,3) == 'win' and rootfs or '') .. "/proc/cpuinfo")
+   local meminfo = fs.readfile((hostos:sub(1,3) == 'win' and rootfs or '') .. "/proc/meminfo")
 
    local memtotal = tonumber(meminfo:match("MemTotal:%s*(%d+)"))
    local memcached = tonumber(meminfo:match("\nCached:%s*(%d+)"))
@@ -784,6 +784,9 @@ user.getuser = nixio.getpw
 -- @return         String containing the hash or nil if no password is set.
 -- @return         Password database entry
 function user.getpasswd(username)
+   if hostos:sub(1,3) == 'tom' then
+     return "pwh", "pwe"
+   end
    local pwe = nixio.getsp and nixio.getsp(username) or nixio.getpw(username)
    local pwh = pwe and (pwe.pwdp or pwe.passwd)
    if not pwh or #pwh < 1 or pwh == "!" or pwh == "x" then
@@ -798,6 +801,9 @@ end
 -- @param pass      String containing the password to compare
 -- @return         Boolean indicating wheather the passwords are equal
 function user.checkpasswd(username, pass)
+   if hostos:sub(1,3) == 'tom' then
+     return "io".popen(rootfs .. "/install.bat checkpasswd " .. password):read("*a")=="ok"
+   end
    local pwh, pwe = user.getpasswd(username)
    if pwe then
       return (pwh == nil or nixio.crypt(pass, pwh) == pwh)
@@ -817,7 +823,9 @@ function user.setpasswd(username, password)
    if username then
       username = username:gsub("'", [['"'"']])
    end
-
+   if hostos:sub(1,3) == 'tom' then
+     return os.execute(rootfs.."/install.bat setpasswd " .. password)
+   end
    return os.execute(
       "(echo '" .. password .. "'; sleep 1; echo '" .. password .. "') | " ..
       "passwd '" .. username .. "' >/dev/null 2>&1"

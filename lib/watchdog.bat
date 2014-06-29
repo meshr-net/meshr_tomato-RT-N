@@ -1,29 +1,14 @@
 cd `dirname $0`/..
 [ -z $meshr ] && meshr=`pwd`
-# check admin rights
-if [ `whoami` != 'root' ];then
-  sudo $0 $@ && exit
-fi
+
 #if exist %meshr:/=\%\var\run\wifi.txt call %bin%\services.bat stop "" conn
 rm $meshr/var/run/wifi.txt $meshr/var/run/wifi-formed.txt
 . $meshr/etc/wifi.txt
 . $meshr/etc/wlan/$ssid.txt
 wl=1
 status=
+#PATH="$PATH:$meshr/bin"
 set -x
-wl_conn() {
-  local guid=$1
-  [ -n "$wl" ] && {
-    wl -i $guid radio on
-    wl -i $guid up 
-    wl join meshr.net imode ibss ap 0
-  }  
-  [ -n "$iwconfig" ] && iwconfig $guid mode ${mode/adhoc/ad-hoc} essid $ssid enc off key off rate auto channel 1
-  
-#      ( type tmp/conn.log  | find "is not correct" ) && $bin/wlan conn $guid $ssid $mode $ssid >> tmp/conn.log
-#      ( type tmp/conn.log  | find "completed successfully" )
-  return 0
-}
 
 wl_status() {
   local guid=$1
@@ -37,15 +22,10 @@ wl_status() {
   fi  
   [ -n "$iwconfig" ] && iwconfig $guid 
 }
-run_script() {
-  local name=$(basename $1)
-  [ -f $meshr/var/run/$name.pid ] && kill -9 `cat $meshr/var/run/$name.pid`
-  # $meshr/bin/failsafe.sh ?
-  ( nohup $@ && echo $!>$meshr/var/run/$name.pid ) & 
-}
+
 [ -n "$smngr" ] && service network-manager stop
 ifconfig $guid up
-wl_conn $guid && echo $ssid>$meshr/var/run/wifi-formed.txt
+wlan $guid $ssid && echo $ssid>$meshr/var/run/wifi-formed.txt
 # infinite loop
 while :
 do
@@ -61,7 +41,7 @@ do
    [ "$status" == "disconnected" ] && {
       find $meshr/var/run/wifi-formed.txt -mmin +15 | grep "wifi" && rm $meshr/var/run/wifi-formed.txt
       find $meshr/var/run/wifi-formed.txt -mmin +2 | grep "wifi" && continue
-      wl_conn $guid > tmp/conn.log &&  echo $ssid>$meshr/var/run/wifi-formed.txt
+      wlan $guid $ssid > tmp/conn.log &&  echo $ssid>$meshr/var/run/wifi-formed.txt
       continue
    }  
    # connecting to meshr.net
@@ -83,11 +63,11 @@ do
       killall olsrd
       $meshr/lib/setip.bat "$meshr/etc/wlan/$ssid.txt" #> $meshr/tmp/setip.log
       if [ "$online" == "1" ] ;then
-        run_script $meshr/lucid-splash.sh
-        run_script $meshr/bin/tor -f  $meshr/etc/Tor/torrc-defaults
+        start-stop-daemon start $meshr/lucid-splash.sh
+        start-stop-daemon start $meshr/bin/tor -f  $meshr/etc/Tor/torrc-defaults
       else
         $meshr/lib/tor-tun.bat #> $meshr/tmp/tt.log &
-        run_script $meshr/lucid-splash.sh
+        start-stop-daemon start $meshr/lucid-splash.sh
       fi
       exit      
    else   

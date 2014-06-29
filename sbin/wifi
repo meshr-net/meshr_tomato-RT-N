@@ -116,16 +116,20 @@ wifi_updown() {
 			echo "$device($iftype): Interface type not supported"
 		fi
 COMMENT1
+    [ ${meshr:0:1} = / ] && linux=1
 		channel="$(uci -q get wireless.$device.channel)" 
     ssid="$(uci -q get wireless.$device\_iface.ssid)" 
     mode="$(uci -q get wireless.$device\_iface.mode)"
     ip4addr="$(uci -q get meshwizard.netconfig.$device\_ip4addr)"
-    $meshr/usr/sbin/olsrd.exe -d 2 -int >  $meshr/tmp/olsrd2.int
-    guid=`cat $meshr/tmp/olsrd2.int | grep $device | sed "s/.*{\(.*\)}.*/\1/g"`
-    
+    [ -z $linux ] && $meshr/usr/sbin/olsrd.exe -d 2 -int >  $meshr/tmp/olsrd2.int
+    [ -z $linux ] && guid=`cat $meshr/tmp/olsrd2.int | grep $device | sed "s/.*{\(.*\)}.*/\1/g"` || guid=$device
+    #disconnecting to update variables in watchdog
     wlan dc $guid
-    while [ -f $meshr/var/run/wifi.txt ]; do sleep 1; done
-    $meshr/bin/start-stop-daemon.exe stop meshr-watchdog
+    for i in `seq 1 33`; do 
+      [ -f $meshr/var/run/wifi.txt ] || break
+      sleep 1
+    done
+    [ -z $linux ] && $meshr/bin/start-stop-daemon stop meshr-watchdog || $meshr/bin/start-stop-daemon stop watchdog.bat
     
     uci set wireless.$device\_iface.guid=$guid
     echo guid=$guid> $meshr/etc/wifi.txt
@@ -149,10 +153,10 @@ COMMENT1
           ip4addr=10.177.$n3.$n4
         fi
       fi     
-      cp -f $meshr/etc/DualServer $meshr/bin/DualServer.ini &&  sed -i "s/10.177.0.1/$ip4addr/g" $meshr/bin/DualServer.ini
+      [ -z $linux ] && cp -f $meshr/etc/DualServer $meshr/bin/DualServer.ini &&  sed -i "s/10.177.0.1/$ip4addr/g" $meshr/bin/DualServer.ini
       [ -f $meshr/etc/wlan/$ssid.txt ] || ( cp $meshr/etc/wlan/ssid.txt $meshr/etc/wlan/$ssid.txt )
       sed -i "s/IPAddress=.*/IPAddress=$ip4addr/g" $meshr/etc/wlan/$ssid.txt
-      chmod 777 $meshr/etc/wlan/$ssid.txt
+      [ -z $linux ] && chmod 777 $meshr/etc/wlan/$ssid.txt
       #TODO: check Internet; add to uci
       uci set wireless.$device\_iface.ip4addr=$ip4addr
       uci set wireless.$device\_iface.diversity=0

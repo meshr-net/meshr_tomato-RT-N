@@ -14,7 +14,7 @@
 # GNU General Public License for more details.
 
 #set -ex
- set -x
+#set -x
 
 [[ $0 == *.ipk.sh ]] && ipkg_self_extracting
 alias nvram=echo

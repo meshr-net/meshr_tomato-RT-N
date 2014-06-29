@@ -109,7 +109,7 @@ function action_json()
    local jsonreq4
    local jsonreq6
 
-   local IpVersion = uci:get_first("olsrd", "olsrd","IpVersion")
+   local IpVersion = uci:get_first("olsrd", "olsrd","IpVersion") or "4"
    if IpVersion == "4" or IpVersion == "6and4" then
       jsonreq4 = utl.exec("echo /status | nc 127.0.0.1 9090")
    end

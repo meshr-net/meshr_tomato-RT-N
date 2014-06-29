@@ -34,7 +34,7 @@ Changes:
 2010-12-11: Changed some paths to make it work with Kamikaze and Luci -- soma
 */
 
-var cgi_url = "/cgi-bin/vizdata.sh";
+var cgi_url = "/cgi-bin/vizdata.lua";
 
 var maxmetric = 3;
 var iconvariant = "-mini";
@@ -70,7 +70,7 @@ var edgediv;
 /******* CALL TO SERVER ********/
 function callToServer(URL) {
 	var IFrameDoc;
-//alert('123');
+//IFrameObj.location = '/cgi-bin/vizdata.lua'; return false; //IE11?
 
 	if (IFrameObj.document) {
 		// For IE5 + opera

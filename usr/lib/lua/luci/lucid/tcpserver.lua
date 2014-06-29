@@ -64,7 +64,7 @@ function prepare_daemon(config, server)
    nixio.syslog("info", "Sockets bound for " .. config[".name"])
    
    if #sockets < 1 then
-      return nil, -6, "no sockets bound: "  .. err or ""
+      return nil, -6, "no sockets bound: "  .. (err or "")
    end
    
    nixio.syslog("info", "Preparing publishers for " .. config[".name"])

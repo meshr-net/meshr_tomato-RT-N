@@ -1,34 +1,8 @@
-local html=[[
-<HTML>
-<HEAD>
-	<TITLE>OLSR-VIZ Data</TITLE>
-	<META CONTENT="text/html; charset=iso-8859-1" HTTP-EQUIV="Content-Type">
-	<META CONTENT="no-cache" HTTP-EQUIV="cache-control">
-</HEAD>
-<BODY>
-
-<script langauge='JavaScript1.2' type='text/javascript'>
-]]
-
--- sed + txtinfo plugin
-local io = require "io"
-local hc = require "luci.httpclient"
 local rootfs = rootfs or ''
-local source, code, msg  = hc.request_to_buffer("http://127.0.0.1:2006/all")
-if not msg then
-  local f = nixio.open(rootfs .. "/tmp/olsr.tmp", "w", 600)
-  f:writeall(source)
-  f:close()
-
-  local handle = io.popen("sed -n -f " .. rootfs .. "/lib/olsr.sed " .. rootfs .. "/tmp/olsr.tmp")
-  html = html .. handle:read("*a")
-  handle:close()
-  handle = io.popen("sed -n -f " .. rootfs .. "/lib/olsr2.sed " .. rootfs .. "/etc/hosts")
-  html = html .. handle:read("*a")
+local hostos = hostos or ''
+if hostos:sub(1,3) == 'win' then
+  require "os".execute("Quiet " .. rootfs .. "/www/cgi-bin/vizdata.bat")
+  return require "luci.model.ipkg".file_exists("/tmp/vizdata.tmp") and require "nixio.fs".readfile(rootfs .. "/tmp/vizdata.tmp") or "Content-type: text/html\n\n<BODY><script langauge='JavaScript1.2' type='text/javascript'>parent.viz_callback();</script></BODY>"
+else
+  return require "io".popen(rootfs .. "/www/cgi-bin/vizdata.sh"):read("*a")
 end
-html = html .. [[
-	parent.viz_callback();
-</script>
-</BODY></HTML>
-]]
-return html
