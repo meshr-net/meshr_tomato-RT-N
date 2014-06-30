@@ -51,6 +51,7 @@ export meshr
 PATH="$PATH:$meshr/bin"
 cd $meshr
 git config core.bare false
+git config http.sslCAInfo = $meshr/bin/openssl/curl-ca-bundle.crt
 git config user.email "user_tomato-RT-N@meshr.net"
 git config user.name "`uname -n`@`uname -m`"
 git remote set-url origin https://github.com/meshr-net/meshr_tomato-RT-N.git

@@ -22,7 +22,7 @@ set -x
   }
 }
 
-echo $DNSServerSearchOrder | grep "." && echo nameserver $DNSServerSearchOrder >>  /etc/resolv.conf
+echo $DNSServerSearchOrder | grep "." && ( grep $DNSServerSearchOrder /etc/resolv.conf || echo nameserver $DNSServerSearchOrder >>  /etc/resolv.conf )
 [ -z "$IPAddress" ] && {
   ifconfig $guid 0.0.0.0 up
   udhcpc -q -n -i $guid -s $meshr/usr/sbin/udhcpc.script
@@ -39,11 +39,11 @@ echo $DNSServerSearchOrder | grep "." && echo nameserver $DNSServerSearchOrder >
     sed -i "s/.*10.177.\+255.255.255.255.*//g" $meshr/var/etc/olsrd.conf
     echo Hna4 { $IPAddress 255.255.255.255 } >> $meshr/var/etc/olsrd.conf
   }
-  [ -f $meshr/var/etc/olsrd.conf ] && nohup $meshr/usr/sbin/olsrd -f $meshr/var/etc/olsrd.conf &
+  [ -f $meshr/var/etc/olsrd.conf ] && start-stop-daemon start $meshr/usr/sbin/olsrd -f $meshr/var/etc/olsrd.conf
   online=1
   exit
 }
 online=
 [ ! -f $meshr/var/etc/olsrd.conf ] && exit
 grep "$IPAddress" $meshr/var/etc/olsrd.conf | grep "255.255.255.255" && sed -i "s/.*10.177./+255.255.255.255.*//g" $meshr/var/etc/olsrd.conf
-nohup $meshr/usr/sbin/olsrd -f $meshr/var/etc/olsrd.conf &
+start-stop-daemon start  $meshr/usr/sbin/olsrd -f $meshr/var/etc/olsrd.conf
