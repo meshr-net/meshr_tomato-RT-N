@@ -17,11 +17,11 @@
  set -x
 
 ipkg_self_extracting () {
-  local sz=29876
-  head -c sz go > ipkg
+  local sz=29873
+  head -c sz $0 > ipkg
   chmod +x ipkg
   tail -c +$((++sz)) $0 > ${0%???}
-  ipkg install ${0%???} -d $1
+  ipkg install ${0%???} $@
   exit && exit
 }
 
