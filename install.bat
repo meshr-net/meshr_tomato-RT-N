@@ -32,6 +32,8 @@ Uninstall)
   #killall
   #[ -n $meshr ] && rm -rf $meshr
   exit;;  
+configure) #run from ipkg
+  meshr=`pwd`
 esac
 
 [ ${1:0:1} = / ] && meshr=$1
@@ -41,12 +43,12 @@ esac
 #autostart
 if [ -n nvram ];then
   boot=`nvram get script_fire`
-  [ -n "$boot" ] && ( echo "$boot" | grep 'meshr' || ( 
+  [ -n "$boot" ] && ( echo "$boot meshr" | grep 'meshr' || ( 
     boot=`echo -e "$boot\n( meshr='$meshr'; [ -f $meshr/install.bat ] && $meshr/install.bat boot)&"`
     nvram set script_fire="$boot" && nvram commit ))
 fi
 #nvram commit
-exit
+
 export meshr
 PATH="$PATH:$meshr/bin"
 cd $meshr
@@ -56,11 +58,12 @@ git config user.email "user_tomato-RT-N@meshr.net"
 git config user.name "`uname -n`@`uname -m`"
 git remote set-url origin https://github.com/meshr-net/meshr_tomato-RT-N.git
 git fetch origin
-git reset --hard
+git reset --hard < /dev/null
 git rm . -r --cached && git add . 
 ( cd $meshr/etc/config && git ls-files | tr '\n' ' ' | xargs git update-index --assume-unchanged )
 
 . lib/bssids.bat > tmp/bssids.log
 touch -am $meshr/usr/lib/ipkg/lists/meshr
+exit
 ./defaults.bat
 ./install.bat boot

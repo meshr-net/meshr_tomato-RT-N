@@ -105,4 +105,3 @@ git pull origin $branch < /dev/null || (
 )))
 start-stop-daemon start $meshr/lib/watchdog
 ipkg -force-defaults  update  'meshr' && ipkg -force-defaults  upgrade  'meshr-update'
-
