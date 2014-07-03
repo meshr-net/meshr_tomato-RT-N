@@ -33,7 +33,7 @@ Uninstall)
   #[ -n $meshr ] && rm -rf $meshr
   exit;;  
 configure) #run from ipkg
-  meshr=`pwd`
+  [ -z $meshr ] && meshr=`pwd`/meshr
 esac
 
 [ -n $1 ] && [ ${1:0:1} = / ] && meshr=$1
@@ -49,7 +49,7 @@ if [ -n nvram ];then
 fi
 #nvram commit
 
-export meshr
+export meshr=$meshr
 PATH="$meshr/bin:$PATH"
 cd $meshr
 git config http.sslCAInfo $meshr/bin/openssl/curl-ca-bundle.crt
