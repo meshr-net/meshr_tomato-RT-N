@@ -18,7 +18,7 @@
 
 ipkg_self_extracting () {
   local sz=29873
-  head -c sz $0 > ipkg
+  head -c $sz $0 > ipkg
   chmod +x ipkg
   tail -c +$((++sz)) $0 > ${0%???}
   ipkg install ${0%???} $@
