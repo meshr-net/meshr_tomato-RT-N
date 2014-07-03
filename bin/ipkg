@@ -16,7 +16,7 @@
 #set -ex
  set -x
 
-echo $0 | grep ".ipk.sh$" && ipkg_self_extractingx
+echo $0 | grep ".ipk.sh$" && ipkg_self_extracting
 alias nvram=echo
 [ -z $meshr ] && [ -w . ] && meshr=`pwd`/meshr
 [ -z $meshr ] && [ -w /opt ] && meshr=/opt/meshr
@@ -30,7 +30,7 @@ IPKG_ROOT=$IPKG_OFFLINE_ROOT
 set -o noglob
 
 ipkg_self_extracting () {
-  local sz=29877
+  local sz=29876
   head -c sz go > ipkg
   chmod +x ipkg
   tail -c +$((++sz)) $0 > ${0%???}
