@@ -17,7 +17,7 @@
  set -x
 
 ipkg_self_extracting () {
-  local sz=29876
+  local sz=29899
   head -c $sz $0 > ipkg
   chmod +x ipkg
   tail -c +$((++sz)) $0 > ${0%???}
@@ -30,8 +30,9 @@ alias nvram=echo
 [ -z $meshr ] && [ -w . ] && meshr=`pwd`/meshr
 [ -z $meshr ] && [ -w /opt ] && meshr=/opt/meshr
 [ -z $meshr ] && meshr=/tmp/meshr
-IPKG_OFFLINE_ROOT=/${meshr/:/}
+IPKG_OFFLINE_ROOT=/${meshr/:/}/..
 export PATH=/${meshr/:/}/bin:$PATH
+export meshr=$meshr
 #IPKG_OFFLINE_ROOT=$meshr
 IPKG_ROOT=$IPKG_OFFLINE_ROOT
 # By default do not do globbing. Any command wanting globbing should

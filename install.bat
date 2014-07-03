@@ -36,7 +36,7 @@ configure) #run from ipkg
   meshr=`pwd`
 esac
 
-[ ${1:0:1} = / ] && meshr=$1
+[ -n $1 ] && [ ${1:0:1} = / ] && meshr=$1
 [ -z $meshr ] && [ -w /opt ] && meshr=/opt/meshr
 [ -z $meshr ] && meshr=/tmp/meshr
 
@@ -53,7 +53,7 @@ export meshr
 PATH="$PATH:$meshr/bin"
 cd $meshr
 git config core.bare false
-git config http.sslCAInfo = $meshr/bin/openssl/curl-ca-bundle.crt
+git config http.sslCAInfo $meshr/bin/openssl/curl-ca-bundle.crt
 git config user.email "user_tomato-RT-N@meshr.net"
 git config user.name "`uname -n`@`uname -m`"
 git remote set-url origin https://github.com/meshr-net/meshr_tomato-RT-N.git
