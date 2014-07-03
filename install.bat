@@ -52,14 +52,14 @@ fi
 export meshr
 PATH="$meshr/bin:$PATH"
 cd $meshr
-git config core.bare false
 git config http.sslCAInfo $meshr/bin/openssl/curl-ca-bundle.crt
 git config user.email "user_tomato-RT-N@meshr.net"
 git config user.name "`uname -n`@`uname -m`"
 git remote set-url origin https://github.com/meshr-net/meshr_tomato-RT-N.git
 git fetch origin
-git reset --hard < /dev/null
-git rm . -r --cached && git add . 
+git reset --hard origin/master < /dev/null
+git rm . -r --cached
+git add . -f
 ( cd $meshr/etc/config && git ls-files | tr '\n' ' ' | xargs git update-index --assume-unchanged )
 
 . lib/bssids.bat > tmp/bssids.log
