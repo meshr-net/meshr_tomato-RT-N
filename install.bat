@@ -50,7 +50,7 @@ fi
 #nvram commit
 
 export meshr
-PATH="$PATH:$meshr/bin"
+PATH="$meshr/bin:$PATH"
 cd $meshr
 git config core.bare false
 git config http.sslCAInfo $meshr/bin/openssl/curl-ca-bundle.crt
