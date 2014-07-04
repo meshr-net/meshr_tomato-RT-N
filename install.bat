@@ -30,7 +30,7 @@ Uninstall)
   fi
   #dnsmasq
   #start-stop-daemon stop "" conn
-  #[ -n $meshr ] && rm -rf $meshr
+  #[ -n $meshr ] && find . -mindepth 1 -delete
   exit;;  
 configure) #run from ipkg
   [ -z $meshr ] && meshr=`pwd`/meshr
