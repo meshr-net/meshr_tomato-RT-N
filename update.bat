@@ -1,4 +1,11 @@
 rem <<BATFILE
+rem update linux from win32
+if not exist %~dp0\bin\git.exe if exist c:\MinGW\msys\1.0\bin\sh.exe (
+  set PATH=%PATH%;c:\MinGW\bin\;c:\MinGW\msys\1.0\bin\
+  copy "%0" %~dp0\tmp\update-tmp.bat 
+  c:\MinGW\msys\1.0\bin\sh.exe %cd:\=/%/tmp/update-tmp.bat %*
+  exit
+)
 rem check admin rights
 net session >nul 2>&1 || (
   rem echo %1 | find ":" && %~dp0\bin\sudo /c %0 %* || %~dp0\bin\sudo /b /c %0 %*
@@ -8,7 +15,6 @@ net session >nul 2>&1 || (
 if not "%~n0"=="update-tmp.bat" ( copy "%0" %~dp0\tmp\update-tmp.bat && %~dp0\tmp\update-tmp.bat %* && goto :EOF )
 set PATH=%meshr:/=\%\bin;%meshr:/=\%\usr\bin;%PATH%
 cd %meshr:/=\%
-set GIT_SSL_NO_VERIFY=true
 echo  %DATE% %TIME%
 set t=%TIME: =%
 set tar="tmp\push_%t::=.%.tar"
@@ -56,12 +62,12 @@ git add .
 git commit -m ".gitignore is now working"
 goto :EOF
 BATFILE
-
+set -x
 # check admin rights
-if [ `whoami` != 'root' ];then
+if [ `whoami` != 'root' ] && [[ `uname` != MINGW* ]];then
   sudo $0 $@ && exit
 fi
-cd `dirname $0`/..
+cd `dirname $0`
 
 git_reset(){
   git fetch origin $branch | grep "fatal: unable to access" && return 1 
@@ -76,19 +82,19 @@ git_reset(){
   tar xf $backup  -C . --overwrite --ignore-failed-read  --ignore-command-error
   git rm . -r --cached 
   git add .
+  git commit -m ".gitignore is now working"
 }
 
 [ -z $meshr ] && meshr=`pwd`
 PATH=$meshr/bin:$PATH
-GIT_SSL_NO_VERIFY=true
 t=$(date +%H%M%S-%d.%m.%Y)
 tar="tmp/push_$t.tar"
 backup="tmp/backup_$t.tar"
 git status | grep "modified:" && git status | grep -e "modified:" | cut -c 14- | tar rf $tar -v -T - --exclude=www/*.exe --ignore-failed-read  --ignore-command-error --overwrite
-[ "$1" == "" ] && [ -f $push.bat ] && tar --list --file $tar | grep "." && exit
+[ "$1" == "" ] && [ -f ./push.bat ] && tar --list --file $tar | grep "." && exit
 [ -f $meshr/.git/index.lock ] && killall git
 branch=release
-[ "$1" == "master" ] && ( branch=master && git_reset; exit)
+[ "$1" == "master" -o "$1" == "m" ] && ( branch=master && git_reset; exit)
 git pull origin $branch < /dev/null || ( 
   git config user.email "user@meshr.net"  
   git config user.name "$USERNAME $USERDOMAIN"  

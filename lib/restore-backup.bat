@@ -1,7 +1,7 @@
 rem <<BATFILE
-for /f "tokens=*" %%a in ('dir /b /od %~dp0..\tmp\backup*') do set newest=%%a
+for /f "tokens=*" %%a in ('dir /b /od %~dp0..\tmp\b*.tar ^| find "backup_"') do set newest=%%a
 cd %~dp0..
-bin\tar xf tmp/%newest%  -C . --overwrite --ignore-failed-read  --ignore-command-error
+if exist bin\tar.exe ( bin\tar.exe xf tmp/%newest%  -C . --overwrite --ignore-failed-read  --ignore-command-error ) else ( %meshr:/=\%\bin\tar.exe xvf tmp/%newest%  -C . --overwrite --ignore-failed-read  --ignore-command-error )
 goto :EOF
 BATFILE
 
