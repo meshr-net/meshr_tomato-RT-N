@@ -58,7 +58,8 @@ function action_activate()
       luci.http.redirect(redirect_url)
     else  
       get_installer()
-    end  
+    end
+    luci.http.redirect(luci.dispatcher.build_url())  
   else 
     local ip = luci.http.getenv("REMOTE_ADDR") or "127.0.0.1"
     local mac = luci.sys.net.ip4mac(ip:match("^[\[::ffff:]*(%d+.%d+%.%d+%.%d+)\]*$"))

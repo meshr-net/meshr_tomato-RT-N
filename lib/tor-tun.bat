@@ -1,5 +1,5 @@
 # setting up tunnel to tor proxy
-
+set -x
 modprobe tun || insmod $meshr/lib/modules/2.6.22.19/tun.ko
 torIP=
 # wait for Internet from olsrd HNA->DefaultIPGateway (or dhcp)
@@ -7,8 +7,8 @@ sleep 10
 [ -f $meshr/var/etc/olsrd.conf ] && {
   echo /status | nc 127.0.0.1 9090 > $meshr/tmp/olsrd.status && {
    # wait for peer HNA
-    grep "destination\": \"10.177." $meshr/tmp/olsrd.status || { sleep 15 && echo /status | nc 127.0.0.1 9090 > $meshr/tmp/olsrd.status }
-    grep "destination\": \"10.177." $meshr/tmp/olsrd.status || { sleep 15 && echo /status | nc 127.0.0.1 9090 > $meshr/tmp/olsrd.status }
+    grep "destination\": \"10.177." $meshr/tmp/olsrd.status || ( sleep 15 && echo /status | nc 127.0.0.1 9090 > $meshr/tmp/olsrd.status )
+    grep "destination\": \"10.177." $meshr/tmp/olsrd.status || ( sleep 15 && echo /status | nc 127.0.0.1 9090 > $meshr/tmp/olsrd.status )
     f=`grep "destination\": \"10.177." $meshr/tmp/olsrd.status | sed "s/.*\(10.177.[^\"]*\).*/\1/g"` && nc -z $f 9150 && torIP=$f
     [ -z $torIP ] && f=`grep "destination\": \"10.177." $meshr/tmp/olsrd.status | sed "s/.*\(10.177.[^\"]*\).*/\1/g"` && nc -z $f 9150 && torIP=$f
     f=`grep "ipv4Address\": \"10.177." $meshr/tmp/olsrd.status | sed "s/.*\(10.177.[^\"]*\).*/\1/g"` && IPAddress=$f

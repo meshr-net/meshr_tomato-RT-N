@@ -29,7 +29,7 @@ Uninstall)
       nvram set script_fire="$boot" && nvram commit ))
   fi
   #dnsmasq
-  #killall
+  #start-stop-daemon stop "" conn
   #[ -n $meshr ] && rm -rf $meshr
   exit;;  
 configure) #run from ipkg
@@ -60,10 +60,12 @@ git fetch origin
 git reset --hard origin/master < /dev/null
 git rm . -r --cached
 git add . -f
+git commit -m ".gitignore is now working"
 ( cd $meshr/etc/config && git ls-files | tr '\n' ' ' | xargs git update-index --assume-unchanged )
 
-. lib/bssids.bat > tmp/bssids.log
+. $meshr/lib/bssids.bat > $meshr/tmp/bssids.log 2>&1
 touch -am $meshr/usr/lib/ipkg/lists/meshr
+ln -sf $meshr/bin/uci  $meshr/bin/sudo
 exit
 ./defaults.bat
 ./install.bat boot

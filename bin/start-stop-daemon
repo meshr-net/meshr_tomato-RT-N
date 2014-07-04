@@ -1,21 +1,48 @@
+#!/bin/sh
+#ex. start-stop-daemon start "" update
+set -x
 start(){
   # $meshr/bin/failsafe.sh ?
-  ( nohup $@ && echo $!>$meshr/var/run/$name.pid ) &
+  for n in $names; do
+     #[ ! -f $meshr/var/run/$n.pid ] && 
+     #( nohup $@ && echo $!>$meshr/var/run/$n.pid ) &
+     nohup /bin/sh -c $@ >/dev/null 2>&1 &
+     echo $!>$meshr/var/run/$n.pid 
+  done
 }
 stop(){
-  [ -f $meshr/var/run/$name.pid ] && kill -9 `cat $meshr/var/run/$name.pid`
+  for n in $names; do
+    [ -f $meshr/var/run/$n.pid ] && {
+      kill -9 `cat $meshr/var/run/$n.pid`
+      rm $meshr/var/run/$n.pid
+    }  
+  done
 }
-
+action=$1
 name=$(basename $2)
-case $1 in
+names=$name
+[ $2 == "" ] && {
+  [ ! $3 == conn ] && names=$names meshr
+  #[ ! $3 == update ] && [ ! $3 == conn ] && names=$names meshr-watchdog
+  names=$names olsrd meshr-splash
+  [ $action == stop ] && {
+    names=$names DualServer DNS2SOCKS badvpn-tun2socks
+    . $meshr/lib/setip.bat $meshr/var/run/wifi.txt #> $meshr/tmp/setip.log
+    cp $meshr/var/run/wifi.txt $meshr/var/run/wifi2.txt
+    rm $meshr/var/run/wifi.txt $meshr/var/run/wifi-formed.txt
+  }
+}
+shift 1
+case $action in
 stop)
-  stop
+  stop $@
   ;;
 start)
-  start
+   stop $@
+   start $@
   ;;
 restart)
-  stop
-  start ${@:2}
+   stop $@
+   start $@
   ;; 
 esac

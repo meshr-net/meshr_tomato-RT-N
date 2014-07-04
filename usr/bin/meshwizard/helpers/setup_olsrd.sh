@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Sets up olsrd
 
 . $meshr/lib/functions.sh

@@ -140,7 +140,7 @@ echo "+ The wizard has finished and the router will reboot now."
 
 #reboot
 ##./olsrd reload generates /var/etc/olsrd.conf
-cd $meshr/etc/init.d/ && ./olsrd reload && cd -
+( cd $meshr/etc/init.d/ && ./olsrd reload )
 #restart watchdog
 if [ ${meshr:0:1} = / ]; then #linux section
   $meshr/bin/start-stop-daemon restart watchdog.bat

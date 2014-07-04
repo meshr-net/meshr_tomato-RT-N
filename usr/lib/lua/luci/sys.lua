@@ -802,7 +802,7 @@ end
 -- @return         Boolean indicating wheather the passwords are equal
 function user.checkpasswd(username, pass)
    if hostos:sub(1,3) == 'tom' then
-     return "io".popen(rootfs .. "/install.bat checkpasswd " .. password):read("*a")=="ok"
+     return require "io".popen(rootfs .. "/install.bat checkpasswd " .. password):read("*a")=="ok"
    end
    local pwh, pwe = user.getpasswd(username)
    if pwe then

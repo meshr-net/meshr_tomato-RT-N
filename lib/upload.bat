@@ -15,7 +15,7 @@ set -x
 [ -z "$MACAddress" ] && { echo MACAddress=`ifconfig $guid | grep -o -E '([[:xdigit:]]{1,2}:){5}[[:xdigit:]]{1,2}'` >> $meshr/etc/wifi.txt
   . $meshr/etc/wifi.txt
 }
-#../lib/bssids.bat
+../lib/bssids.bat
 # get wifi peers list
 echo>arp.txt
 while read ip _ _ mac _ int; do
@@ -27,7 +27,8 @@ done < /proc/net/arp
 ip -s -s neigh flush all
 IPAddress=`cat $meshr/etc/dnsmasq.conf | grep "address=/#/" | sed "s/.*#.//g"`
 
-tar -cf up.tar arp.txt bssids.txt ../etc/config/system ../etc/config/freifunk ../tmp/myip --ignore-failed-read  --ignore-command-error
+tar --help | grep -q ignore-failed-read && can_ignore=--ignore-failed-read  --ignore-command-error
+tar -cf up.tar arp.txt bssids.txt ../etc/config/system ../etc/config/freifunk ../tmp/myip $can_ignore
 gzip -fc up.tar > up.taz
 if which openssl ; then
   mv -f up.taz up.tar

@@ -1,3 +1,4 @@
+#!/bin/sh
 cd `dirname $0`/..
 [ -z $meshr ] && meshr=`pwd`
 
@@ -7,7 +8,7 @@ rm $meshr/var/run/wifi.txt $meshr/var/run/wifi-formed.txt
 . $meshr/etc/wlan/$ssid.txt
 wl=1
 status=
-#PATH="$PATH:$meshr/bin"
+PATH="$meshr/bin:$PATH"
 set -x
 
 wl_status() {
@@ -18,7 +19,7 @@ wl_status() {
     grep -q "SSID: \"$ssid\"" $meshr/tmp/wlan.log && status="connected to $ssid"
     
     grep -q "formed: \"$ssid\"" $meshr/tmp/wlan.log && status="formed $ssid"
-    grep -q "disconnected: \"$ssid\"" $meshr/tmp/wlan.log && status="disconnected"
+    grep -q "Not associated\|disconnected: \"$ssid\"" $meshr/tmp/wlan.log && status="disconnected"
   fi  
   [ -n "$iwconfig" ] && iwconfig $guid 
 }
@@ -29,7 +30,7 @@ wlan $guid $ssid && echo $ssid>$meshr/var/run/wifi-formed.txt
 # infinite loop
 while :
 do
-  #sleep 3
+  sleep 1
   [ -z "$ssid" ] && [ ! -f $meshr/etc/wifi.txt ] && continue
   [ -z "$ssid" ] && . $meshr/etc/wifi.txt
   wl_status $guid
@@ -41,7 +42,7 @@ do
    [ "$status" == "disconnected" ] && {
       find $meshr/var/run/wifi-formed.txt -mmin +15 | grep "wifi" && rm $meshr/var/run/wifi-formed.txt
       find $meshr/var/run/wifi-formed.txt -mmin +2 | grep "wifi" && continue
-      wlan $guid $ssid > tmp/conn.log &&  echo $ssid>$meshr/var/run/wifi-formed.txt
+      wlan conn $guid $ssid > tmp/conn.log &&  echo $ssid>$meshr/var/run/wifi-formed.txt
       continue
    }  
    # connecting to meshr.net
@@ -60,24 +61,24 @@ do
       # TODO: save routes? route | grep $guid to $DefaultIPGateway + restore in setip
       # run DHCP server ASAP
     
-      killall olsrd
-      $meshr/lib/setip.bat "$meshr/etc/wlan/$ssid.txt" #> $meshr/tmp/setip.log
-      if [ "$online" == "1" ] ;then
+      start-stop-daemon stop olsrd
+      . $meshr/lib/setip.bat $meshr/etc/wlan/$ssid.txt #> $meshr/tmp/setip.log
+      if [ "$online" == "1" ];then
         start-stop-daemon start $meshr/lucid-splash.sh
-        start-stop-daemon start $meshr/bin/tor -f  $meshr/etc/Tor/torrc-defaults
+        start-stop-daemon start $meshr/bin/tor -f $meshr/etc/Tor/torrc-defaults
       else
         $meshr/lib/tor-tun.bat #> $meshr/tmp/tt.log &
         start-stop-daemon start $meshr/lucid-splash.sh
-      fi
-      exit      
+      fi 
    else   
       [ -f $meshr/var/run/wifi-formed.txt ] && rm $meshr/var/run/wifi-formed.txt
    fi 
   else
    [ "$status" == "connected to $ssid" ] && continue
    # disconnected: restore old settings
-   ./bin/services.bat stop "" conn
+   start-stop-daemon stop "" conn
   fi
+  exit     
 done
 
 # >$bin/../tmp/wd1.$TIME::=..log 2>&1

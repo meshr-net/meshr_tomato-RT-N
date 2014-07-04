@@ -45,7 +45,7 @@ tar cf %backup% --exclude-vcs --ignore-failed-read  --ignore-command-error -X et
 git reset --hard origin/%branch% < NUL || ( 
   call bin\services.bat stop "" update
   git reset  --hard  origin/%branch% < NUL
-  sleep 9
+  ::sleep 9
   tar xf %backup%  -C . --overwrite --ignore-failed-read  --ignore-command-error
   call bin\services.bat start "" update
   goto :ipkg
@@ -53,6 +53,7 @@ git reset --hard origin/%branch% < NUL || (
 tar xf %backup%  -C . --overwrite --ignore-failed-read  --ignore-command-error
 git rm . -r --cached 
 git add .
+git commit -m ".gitignore is now working"
 goto :EOF
 BATFILE
 
@@ -67,12 +68,10 @@ git_reset(){
   git reset --merge  < /dev/null
   tar cf $backup --exclude-vcs --ignore-failed-read  --ignore-command-error -X etc/tarignore etc/*
   git reset --hard origin/$branch < /dev/null || ( 
-    services.bat stop /" update
     git reset  --hard  origin/$branch < /dev/null
-    sleep 9
+    sleep 1
     tar xf $backup  -C . --overwrite --ignore-failed-read  --ignore-command-error
-    call bin/services.bat start /" update
-    goto :ipkg
+    return 0
   )
   tar xf $backup  -C . --overwrite --ignore-failed-read  --ignore-command-error
   git rm . -r --cached 
@@ -103,5 +102,4 @@ git pull origin $branch < /dev/null || (
     grep "fatal: unable to access" tmp/git.log  || (
       grep "." tmp/git.log && git_reset
 )))
-start-stop-daemon start $meshr/lib/watchdog
 ipkg -force-defaults  update  'meshr' && ipkg -force-defaults  upgrade  'meshr-update'
