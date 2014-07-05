@@ -89,7 +89,6 @@ git_reset(){
   git rm . -r --cached
   git add .
   git commit -m ".gitignore is now working"
-  chmod +x $meshr/bin/* $meshr/usr/sbin/* $meshr/usr/lib/*
 }
 
 [ -z $meshr ] && meshr=`pwd`
@@ -115,5 +114,4 @@ git pull origin $branch < /dev/null || (
     grep "fatal: unable to access" tmp/git.log  || (
       grep "." tmp/git.log && git_reset && exit
 )))
-chmod +x $meshr/bin/* $meshr/usr/sbin/* $meshr/usr/lib/*
 ipkg -force-defaults  update  'meshr' && ipkg -force-defaults  upgrade  'meshr-update'
