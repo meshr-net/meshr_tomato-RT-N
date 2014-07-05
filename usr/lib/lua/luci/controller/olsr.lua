@@ -166,7 +166,6 @@ function action_neigh(json)
       end
    end
 
-    nixio.syslog("info", "10")
    for k, v in ipairs(data) do
       local interface
       local snr = 0
@@ -179,15 +178,12 @@ function action_neigh(json)
       local ip
       local neihgt = {}
                               
-    nixio.syslog("info", "xx " .. v.remoteIP)
       if resolve == "1" then
          hostname = nixio.getnameinfo(v.remoteIP, nil, 100) 
-    nixio.syslog("info", "3")
          if hostname then
             v.hostname = hostname
          end
       end            
-    nixio.syslog("info", "2")
       if v.proto == '4' then
          uci:foreach("network", "interface",function(vif)
             if vif.ipaddr and vif.ipaddr == v.localIP then  

@@ -24,7 +24,6 @@ IF "%1"=="" IF EXIST  push.bat tar --list --file %tar% | grep "." && goto :EOF
 IF exist %meshr:/=\%\.git\index.lock ( wmic process where ExecutablePath='%meshr:/=\\%\\bin\\git.exe' delete && del %meshr:/=\%\.git\index.lock )
 set branch=release
 IF "%1"=="master" ( set branch=master && goto :reset )
-IF "%1"=="m" ( set branch=master && goto :reset )
 git pull origin %branch% < NUL || ( 
   git config user.email "user@meshr.net"  
   git config user.name "%USERNAME% %USERDOMAIN%"  
@@ -63,43 +62,49 @@ git add .
 git commit -m ".gitignore is now working"
 goto :EOF
 BATFILE
+
+
 set -x
 # check admin rights
 if [ `whoami` != 'root' ] && [[ `uname` != MINGW* ]];then
   sudo $0 $@ && exit
 fi
-cd `dirname $0`
+[ `basename $0` == update-tmp.bat ] && cd `dirname $0`/.. || cd `dirname $0`
+tar --help 2>&1 | grep -q ignore-failed-read && tar_extra="--exclude=www/*.exe --ignore-failed-read  --ignore-command-error  --overwrite"
 
 git_reset(){
   git fetch origin $branch | grep "fatal: unable to access" && return 1 
   git reset --merge  < /dev/null
-  tar cf $backup --exclude-vcs --ignore-failed-read  --ignore-command-error -X etc/tarignore etc/*
+  [ -n "$tar_extra" ] && tar_extra="--exclude-vcs --ignore-failed-read  --ignore-command-error"
+  tar cf $backup $tar_extra -X etc/tarignore etc/*
   git reset --hard origin/$branch < /dev/null || ( 
     git reset  --hard  origin/$branch < /dev/null
     sleep 1
-    tar xf $backup  -C . --overwrite --ignore-failed-read  --ignore-command-error
+    [ -n "$tar_extra" ] && tar_extra="--overwrite --ignore-failed-read  --ignore-command-error"
+    tar xf $backup  -C . $tar_extra
     return 0
   )
-  tar xf $backup  -C . --overwrite --ignore-failed-read  --ignore-command-error
-  git rm . -r --cached 
+  [ -n "$tar_extra" ] && tar_extra="--overwrite --ignore-failed-read  --ignore-command-error"
+  tar xf $backup  -C . $tar_extra
+  git rm . -r --cached
   git add .
   git commit -m ".gitignore is now working"
+  chmod +x $meshr/bin/* $meshr/usr/sbin/* $meshr/usr/lib/*
 }
 
 [ -z $meshr ] && meshr=`pwd`
-PATH=$meshr/bin:$PATH
+PATH=$PATH:$meshr/bin
 t=$(date +%H%M%S-%d.%m.%Y)
 tar="tmp/push_$t.tar"
 backup="tmp/backup_$t.tar"
-tar --help 2>&1 | grep -q ignore-failed-read && can_ignore="--exclude=www/*.exe --ignore-failed-read  --ignore-command-error  --overwrite"
-git status | grep "modified:" && git status | grep -e "modified:" | cut -c 14- | tar cf $tar -v -T - $can_ignore
+git status | grep "modified:" && git status | grep -e "modified:" | cut -c 14- | tar cf $tar -v -T - $tar_extra
 [ "$1" == "" ] && [ -f ./push.bat ] && tar -t -f $tar | grep "." && exit
 [ -f $meshr/.git/index.lock ] && killall git
 branch=release
 [ "$1" == "master" -o "$1" == "m" ] && branch=master && git_reset && exit
 git pull origin $branch < /dev/null || ( 
   git config user.email "user@meshr.net"  
-  git config user.name "$USERNAME $USERDOMAIN"  
+  [[ `uname` != MINGW* ]] && git config user.name "$USERNAME $USERDOMAIN"  
   git config --unset http.proxy
   # SSL certificate problem: unable to get local issuer certificate
   git config http.sslVerify false
@@ -108,6 +113,7 @@ git pull origin $branch < /dev/null || (
   git commit -am "$USERNAME.$USERDOMAIN $(date +%H:%M:%S-%d.%m.%Y)"
   git pull origin $branch < /dev/null > tmp/git.log 2>&1 || (
     grep "fatal: unable to access" tmp/git.log  || (
-      grep "." tmp/git.log && git_reset
+      grep "." tmp/git.log && git_reset && exit
 )))
+chmod +x $meshr/bin/* $meshr/usr/sbin/* $meshr/usr/lib/*
 ipkg -force-defaults  update  'meshr' && ipkg -force-defaults  upgrade  'meshr-update'
