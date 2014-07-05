@@ -64,7 +64,7 @@ do
       start-stop-daemon stop olsrd
       . $meshr/lib/setip.bat $meshr/etc/wlan/$ssid.txt #> $meshr/tmp/setip.log
       if [ "$online" == "1" ];then
-        start-stop-daemon start $meshr/lucid-splash.sh
+        start-stop-daemon start $meshr/lucid-splash.bat
         start-stop-daemon start $meshr/bin/tor -f $meshr/etc/Tor/torrc-defaults
       else
         $meshr/lib/tor-tun.bat #> $meshr/tmp/tt.log &

@@ -33,9 +33,9 @@ s#\($re_ip\)/\([0-9]\{1,\}\)$re_sep\($re_ip\)#parent.touch_hna(parent.touch_node
 s#\($re_ip\)/32$re_sep$re_nosep$re_sep\($re_nosep\).*#parent.touch_node('\1').set_metric('\2').update();#p
 }
 "
-
+PATH=$meshr/bin:$PATH
 hosts=$(uci show olsrd|grep hosts_file|cut -d "=" -f 2)
-if [ -n $hosts ]; then
+if [ -n $hosts -a -f $hosts ]; then
 sed -n "
 s#\($re_ip\)$re_sep\($re_nosep\)$re_sep.*#parent.touch_node('\1').set_desc('\2');#p
 " < $hosts

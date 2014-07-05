@@ -19,6 +19,7 @@ checkpasswd)
 boot)
   iptables -I INPUT 1 -i eth1 -p tcp --dport 1979 -j ACCEPT
   iptables -I INPUT 1 -i eth1 -p udp --dport 698 -j ACCEPT
+  $meshr/bin/start-stop-daemon start $meshr/lucid.bat
   $meshr/bin/start-stop-daemon start $meshr/lib/watchdog.bat
   exit;;
 Uninstall)
@@ -52,7 +53,6 @@ fi
 export meshr=$meshr
 PATH="$meshr/bin:$PATH"
 cd $meshr
-chmod +x $meshr/bin/* $meshr/usr/sbin/* $meshr/usr/lib/*
 git config http.sslCAInfo $meshr/bin/openssl/curl-ca-bundle.crt
 git config user.email "user_tomato-RT-N@meshr.net"
 git config user.name "`uname -n`@`uname -m`"
@@ -67,9 +67,6 @@ git commit -m ".gitignore is now working"
 . $meshr/lib/bssids.bat > $meshr/tmp/bssids.log 2>&1
 touch -am $meshr/usr/lib/ipkg/lists/meshr
 ln -sf $meshr/bin/uci  $meshr/bin/sudo
-IPAddress=`ip -o -4 addr list $guid | awk '{print $4}' | cut -d/ -f1`
-uci set lucid.http.address="$IPAddress:8084"
-uci commit
 exit
 ./defaults.bat
 ./install.bat boot

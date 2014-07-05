@@ -31,4 +31,17 @@ config daemon http
 	list publisher luciweb
 	option enabled 1
 	
-
+config daemon https
+	option slave httpd
+	list address 127.0.0.1:4443
+	list publisher webroot
+	list publisher luciweb
+	option enabled 1
+	option encryption enable
+	option tls sdk_tls
+	
+config tls sdk_tls
+	option generate 1
+	option key /tmp/lucid-tls.key
+	option cert /tmp/lucid-tls.cert
+	option type asn1

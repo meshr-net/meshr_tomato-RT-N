@@ -140,7 +140,7 @@ function run()
       elseif stat == 0 then
          ifaddrs = nixio.getifaddrs()
       end
-
+      
       for _, cb in ipairs(tickt) do
          cb()
       end

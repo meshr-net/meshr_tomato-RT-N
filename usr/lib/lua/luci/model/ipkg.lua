@@ -32,7 +32,7 @@ local ipkg = hostos:sub(1,3) == 'win' and sh_ipkg or "opkg --force-removal-of-de
 local icfg = rootfs .. "/etc/ipkg.conf"
 local string   = require "string"
 
-local ilists = hostos:sub(1,3) == 'win' and rootfs .. '/usr/lib/ipkg/lists/' or "/var/opkg-lists/"
+local ilists = #rootfs>0 and rootfs .. '/usr/lib/ipkg/lists/' or "/var/opkg-lists/"
 local idir = rootfs .. "/usr/lib/ipkg/"
 
 

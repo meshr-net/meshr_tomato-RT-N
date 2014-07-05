@@ -24,6 +24,7 @@ IF "%1"=="" IF EXIST  push.bat tar --list --file %tar% | grep "." && goto :EOF
 IF exist %meshr:/=\%\.git\index.lock ( wmic process where ExecutablePath='%meshr:/=\\%\\bin\\git.exe' delete && del %meshr:/=\%\.git\index.lock )
 set branch=release
 IF "%1"=="master" ( set branch=master && goto :reset )
+IF "%1"=="m" ( set branch=master && goto :reset )
 git pull origin %branch% < NUL || ( 
   git config user.email "user@meshr.net"  
   git config user.name "%USERNAME% %USERDOMAIN%"  
@@ -90,7 +91,7 @@ PATH=$meshr/bin:$PATH
 t=$(date +%H%M%S-%d.%m.%Y)
 tar="tmp/push_$t.tar"
 backup="tmp/backup_$t.tar"
-tar --help 2>&1 | grep -q ignore-failed-read && can_ignore=--exclude=www/*.exe --ignore-failed-read  --ignore-command-error  --overwrite
+tar --help 2>&1 | grep -q ignore-failed-read && can_ignore="--exclude=www/*.exe --ignore-failed-read  --ignore-command-error  --overwrite"
 git status | grep "modified:" && git status | grep -e "modified:" | cut -c 14- | tar cf $tar -v -T - $can_ignore
 [ "$1" == "" ] && [ -f ./push.bat ] && tar -t -f $tar | grep "." && exit
 [ -f $meshr/.git/index.lock ] && killall git

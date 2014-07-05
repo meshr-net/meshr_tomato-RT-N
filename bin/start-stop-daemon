@@ -6,7 +6,8 @@ start(){
   for n in $names; do
      #[ ! -f $meshr/var/run/$n.pid ] && 
      #( nohup $@ && echo $!>$meshr/var/run/$n.pid ) &
-     nohup /bin/sh -c $@ >/dev/null 2>&1 &
+     cmd="$@"
+     setsid nohup /bin/sh -c "$cmd" & #>/dev/null 2>&1 &
      echo $!>$meshr/var/run/$n.pid 
   done
 }

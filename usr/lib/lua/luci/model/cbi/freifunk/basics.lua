@@ -10,13 +10,13 @@ You may obtain a copy of the License at
 
    http://www.apache.org/licenses/LICENSE-2.0
 ]]
-
+                          
+local rootfs = rootfs or ""
 local fs = require "luci.fs"
 local util = require "luci.util"
 local uci = require "luci.model.uci".cursor()
-local profiles = "/etc/config/profile_"
+local profiles = rootfs .. "/etc/config/profile_"
 local os   = require "os"
-local rootfs = rootfs or ""
 
 m = Map("freifunk", translate ("Community"))
 c = m:section(NamedSection, "community", "public", nil, translate("These are the basic settings for your local wireless community. These settings define the default values for the wizard and DO NOT affect the actual configuration of the router."))
