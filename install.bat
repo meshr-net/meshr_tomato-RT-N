@@ -68,7 +68,7 @@ git commit -m ".gitignore is now working"
 touch -am $meshr/usr/lib/ipkg/lists/meshr
 ln -sf $meshr/bin/uci  $meshr/bin/sudo
 ln -sf $meshr/bin/git  $meshr/bin/git-merge
-IPAddress=`ip -o -4 addr list $guid | awk '{print $4}' | cut -d/ -f1`
+IPAddress=`ip -o -4 addr list br0 | awk '{print $4}' | cut -d/ -f1`
 uci set lucid.http.address="$IPAddress:8084"
 uci commit
 exit
