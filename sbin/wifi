@@ -137,7 +137,7 @@ COMMENT1
     echo ssid=$ssid>> $meshr/etc/wifi.txt
     echo channel=$channel ssid=$ssid mode=$mode guid=$guid
     [ -n "$guid" ] && [ -n "$ssid" ] && {
-      if wlan gp $guid $ssid | grep "^Got error " && wlan gp $guid $ssid-adhoc | grep "^Got error " ; then
+      if [ -z $linux ] && wlan gp $guid $ssid | grep "^Got error " && wlan gp $guid $ssid-adhoc | grep "^Got error " ; then
         [ -f $meshr/etc/wlan/$ssid.xml ] || ( cp $meshr/etc/wlan/meshr.net.xml $meshr/etc/wlan/$ssid.xml && sed -i "s/meshr.net/$ssid/g" $meshr/etc/wlan/$ssid.xml )
         wlan sp $guid $meshr/etc/wlan/$ssid.xml
       fi

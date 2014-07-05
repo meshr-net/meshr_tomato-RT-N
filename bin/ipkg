@@ -14,7 +14,7 @@
 # GNU General Public License for more details.
 
 #set -ex
- set -x
+#set -x
 
 ipkg_self_extracting () {
   local sz=29913

@@ -45,7 +45,6 @@ function prepare_daemon(config, server)
    for _, addr in ipairs(config.address) do
       local host, port = addr:match("(.-):?([^:]*)$")
       if smode then
-        local uci = require("luci.model.uci").cursor()
         host = fs.readfile(rootfs .. "/etc/config/meshwizard"):match( "ip4addr' '([%d%.]+)'") or ''
         port = 80
       end

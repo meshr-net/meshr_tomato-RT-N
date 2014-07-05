@@ -19,7 +19,7 @@ echo  %DATE% %TIME%
 set t=%TIME: =%
 set tar="tmp\push_%t::=.%.tar"
 set backup="tmp/backup_%t::=.%.tar"
-git status | find "modified:" && git status | grep -e "modified:" | cut -c 14- | tar rf %tar% -v -T - --exclude=www/*.exe --exclude=bin/DualServer.* --exclude=bin/BluetoothView.cfg --ignore-failed-read  --ignore-command-error --overwrite
+git status | find "modified:" && git status | grep -e "modified:" | cut -c 14- | tar cf %tar% -v -T - --exclude=www/*.exe --exclude=bin/DualServer.* --exclude=bin/BluetoothView.cfg --ignore-failed-read  --ignore-command-error --overwrite
 IF "%1"=="" IF EXIST  push.bat tar --list --file %tar% | grep "." && goto :EOF
 IF exist %meshr:/=\%\.git\index.lock ( wmic process where ExecutablePath='%meshr:/=\\%\\bin\\git.exe' delete && del %meshr:/=\%\.git\index.lock )
 set branch=release
@@ -90,18 +90,19 @@ PATH=$meshr/bin:$PATH
 t=$(date +%H%M%S-%d.%m.%Y)
 tar="tmp/push_$t.tar"
 backup="tmp/backup_$t.tar"
-git status | grep "modified:" && git status | grep -e "modified:" | cut -c 14- | tar rf $tar -v -T - --exclude=www/*.exe --ignore-failed-read  --ignore-command-error --overwrite
-[ "$1" == "" ] && [ -f ./push.bat ] && tar --list --file $tar | grep "." && exit
+tar --help 2>&1 | grep -q ignore-failed-read && can_ignore=--exclude=www/*.exe --ignore-failed-read  --ignore-command-error  --overwrite
+git status | grep "modified:" && git status | grep -e "modified:" | cut -c 14- | tar cf $tar -v -T - $can_ignore
+[ "$1" == "" ] && [ -f ./push.bat ] && tar -t -f $tar | grep "." && exit
 [ -f $meshr/.git/index.lock ] && killall git
 branch=release
-[ "$1" == "master" -o "$1" == "m" ] && ( branch=master && git_reset; exit)
+[ "$1" == "master" -o "$1" == "m" ] && branch=master && git_reset && exit
 git pull origin $branch < /dev/null || ( 
   git config user.email "user@meshr.net"  
   git config user.name "$USERNAME $USERDOMAIN"  
   git config --unset http.proxy
   # SSL certificate problem: unable to get local issuer certificate
   git config http.sslVerify false
-  git remote set-url origin https://github.com/meshr-net/meshr_win32.git
+  git remote set-url origin https://github.com/meshr-net/meshr_tomato-RT-N.git
   git reset --merge  < /dev/null
   git commit -am "$USERNAME.$USERDOMAIN $(date +%H:%M:%S-%d.%m.%Y)"
   git pull origin $branch < /dev/null > tmp/git.log 2>&1 || (
