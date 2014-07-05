@@ -53,7 +53,6 @@ fi
 export meshr=$meshr
 PATH="$meshr/bin:$PATH"
 cd $meshr
-chmod +x $meshr/bin/* $meshr/usr/sbin/* $meshr/usr/lib/*
 git config http.sslCAInfo $meshr/bin/openssl/curl-ca-bundle.crt
 git config user.email "user_tomato-RT-N@meshr.net"
 git config user.name "`uname -n`@`uname -m`"
