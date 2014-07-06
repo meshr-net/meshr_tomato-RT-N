@@ -1,6 +1,6 @@
 rem <<BATFILE
 rem update linux from win32
-if not exist %~dp0\bin\git.exe if exist c:\MinGW\msys\1.0\bin\sh.exe (
+if not exist %~dp0\bin\git.exe if not exist %~dp0\..\bin\git.exe if exist c:\MinGW\msys\1.0\bin\sh.exe (
   set PATH=%PATH%;c:\MinGW\bin\;c:\MinGW\msys\1.0\bin\
   copy "%0" %~dp0\tmp\update-tmp.bat 
   c:\MinGW\msys\1.0\bin\sh.exe %cd:\=/%/tmp/update-tmp.bat %*
@@ -23,6 +23,7 @@ git status | find "modified:" && git status | grep -e "modified:" | cut -c 14- |
 IF "%1"=="" IF EXIST  push.bat tar --list --file %tar% | grep "." && goto :EOF
 IF exist %meshr:/=\%\.git\index.lock ( wmic process where ExecutablePath='%meshr:/=\\%\\bin\\git.exe' delete && del %meshr:/=\%\.git\index.lock )
 set branch=release
+IF "%1"=="m" ( set branch=master && goto :reset )
 IF "%1"=="master" ( set branch=master && goto :reset )
 git pull origin %branch% < NUL || ( 
   git config user.email "user@meshr.net"  
@@ -57,9 +58,7 @@ git reset --hard origin/%branch% < NUL || (
   goto :ipkg
 )
 tar xf %backup%  -C . --overwrite --ignore-failed-read  --ignore-command-error
-git rm . -r --cached 
-git add .
-git commit -m ".gitignore is now working"
+git add . -u
 goto :EOF
 BATFILE
 
@@ -86,9 +85,7 @@ git_reset(){
   )
   [ -n "$tar_extra" ] && tar_extra="--overwrite --ignore-failed-read  --ignore-command-error"
   tar xf $backup  -C . $tar_extra
-  git rm . -r --cached
-  git add .
-  git commit -m ".gitignore is now working"
+  git add . -u
 }
 
 [ -z $meshr ] && meshr=`pwd`
