@@ -7,7 +7,7 @@ rm $meshr/var/run/wifi.txt $meshr/var/run/wifi-formed.txt
 . $meshr/etc/wifi.txt
 . $meshr/etc/wlan/$ssid.txt
 wl=1
-status=
+status=0
 PATH="$meshr/bin:$PATH"
 set -x
 
@@ -30,7 +30,7 @@ wlan $guid $ssid && echo $ssid>$meshr/var/run/wifi-formed.txt
 # infinite loop
 while :
 do
-  sleep 1
+  [ "$status" == "0" ] && status="" || sleep 10
   [ -z "$ssid" ] && [ ! -f $meshr/etc/wifi.txt ] && continue
   [ -z "$ssid" ] && . $meshr/etc/wifi.txt
   wl_status $guid
@@ -64,7 +64,7 @@ do
       start-stop-daemon stop olsrd
       . $meshr/lib/setip.bat $meshr/etc/wlan/$ssid.txt #> $meshr/tmp/setip.log
       if [ "$online" == "1" ];then
-        start-stop-daemon start $meshr/lucid-splash.bat
+        start-stop-daemon start $meshr/meshr-splash.bat
         start-stop-daemon start $meshr/bin/tor -f $meshr/etc/Tor/torrc-defaults
       else
         $meshr/lib/tor-tun.bat #> $meshr/tmp/tt.log &
@@ -78,7 +78,7 @@ do
    # disconnected: restore old settings
    start-stop-daemon stop "" conn
   fi
-  exit     
+  #exit     
 done
 
 # >$bin/../tmp/wd1.$TIME::=..log 2>&1

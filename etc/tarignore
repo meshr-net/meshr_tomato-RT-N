@@ -1,5 +1,6 @@
 etc/init.d/*
-etc/Tor/*
+etc/Tor
+etc/rc.d
 etc/rc.common
 etc/tarignore
 etc/uci-defaults/*

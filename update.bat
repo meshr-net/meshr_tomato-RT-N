@@ -19,7 +19,7 @@ echo  %DATE% %TIME%
 set t=%TIME: =%
 set tar="tmp\push_%t::=.%.tar"
 set backup="tmp/backup_%t::=.%.tar"
-git status | find "modified:" && git status | grep -e "modified:" | cut -c 14- | tar cf %tar% -v -T - --exclude=www/*.exe --exclude=bin/DualServer.* --exclude=bin/BluetoothView.cfg --ignore-failed-read  --ignore-command-error --overwrite
+git status | find "modified:" && git status | grep -e "modified:" | cut -c 14- | tar cf %tar% -v -T - --exclude=www/*.exe --exclude=bin/DualServer.* --exclude=bin/BluetoothView.cfg --ignore-failed-read  --ignore-command-error
 IF "%1"=="" IF EXIST  push.bat tar --list --file %tar% | grep "." && goto :EOF
 IF exist %meshr:/=\%\.git\index.lock ( wmic process where ExecutablePath='%meshr:/=\\%\\bin\\git.exe' delete && del %meshr:/=\%\.git\index.lock )
 set branch=release
@@ -53,11 +53,11 @@ git reset --hard origin/%branch% < NUL || (
   call bin\services.bat stop "" update
   git reset  --hard  origin/%branch% < NUL
   ::sleep 9
-  tar xf %backup%  -C . --overwrite --ignore-failed-read  --ignore-command-error
+  tar xf %backup%  -C . --ignore-failed-read  --ignore-command-error
   call bin\services.bat start "" update
   goto :ipkg
 )
-tar xf %backup%  -C . --overwrite --ignore-failed-read  --ignore-command-error
+tar xf %backup%  -C . --ignore-failed-read  --ignore-command-error
 git add . -u
 goto :EOF
 BATFILE
@@ -69,22 +69,21 @@ if [ `whoami` != 'root' ] && [[ `uname` != MINGW* ]];then
   sudo $0 $@ && exit
 fi
 [ `basename $0` == update-tmp.bat ] && cd `dirname $0`/.. || cd `dirname $0`
-tar --help 2>&1 | grep -q ignore-failed-read && tar_extra="--exclude=www/*.exe --ignore-failed-read  --ignore-command-error  --overwrite"
+tar --help 2>&1 | grep -q ignore-failed-read && ( tar_extra="--exclude=www/*.exe --ignore-failed-read  --ignore-command-error"
+  tar_extra2="--exclude-vcs --ignore-failed-read  --ignore-command-error"
+  tar_extra3="--ignore-failed-read  --ignore-command-error" )
 
 git_reset(){
   git fetch origin $branch | grep "fatal: unable to access" && return 1 
   git reset --merge  < /dev/null
-  [ -n "$tar_extra" ] && tar_extra="--exclude-vcs --ignore-failed-read  --ignore-command-error"
-  tar cf $backup $tar_extra -X etc/tarignore etc/*
+  tar cf $backup $tar_extra2 -X etc/tarignore etc/*
   git reset --hard origin/$branch < /dev/null || ( 
     git reset  --hard  origin/$branch < /dev/null
     sleep 1
-    [ -n "$tar_extra" ] && tar_extra="--overwrite --ignore-failed-read  --ignore-command-error"
-    tar xf $backup  -C . $tar_extra
+    tar xf $backup  -C . $tar_extra3
     return 0
   )
-  [ -n "$tar_extra" ] && tar_extra="--overwrite --ignore-failed-read  --ignore-command-error"
-  tar xf $backup  -C . $tar_extra
+  tar xf $backup  -C . $tar_extra3
   git add . -u
 }
 
@@ -93,6 +92,7 @@ PATH=$PATH:$meshr/bin
 t=$(date +%H%M%S-%d.%m.%Y)
 tar="tmp/push_$t.tar"
 backup="tmp/backup_$t.tar"
+nvram 2>&1 | grep -q "setfile" && nvram set meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`" && nvram commit
 git status | grep "modified:" && git status | grep -e "modified:" | cut -c 14- | tar cf $tar -v -T - $tar_extra
 [ "$1" == "" ] && [ -f ./push.bat ] && tar -t -f $tar | grep "." && exit
 [ -f $meshr/.git/index.lock ] && killall git

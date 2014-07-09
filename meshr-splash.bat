@@ -14,6 +14,7 @@ rem TODO: sudo start-stop-daemon.exe stop MsDepSvc
 goto :loop
 goto :EOF
 BATFILE
+
 #set -x
 cd `dirname $0`
 [ -z $meshr ] && meshr=`pwd`

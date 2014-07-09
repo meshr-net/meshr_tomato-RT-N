@@ -1,6 +1,8 @@
 #!/bin/sh
 #ex. start-stop-daemon start "" update
 set -x
+[ -z $meshr ] && cd `dirname $0`/.. && meshr=`pwd`
+
 start(){
   # $meshr/bin/failsafe.sh ?
   for n in $names; do
@@ -13,26 +15,28 @@ start(){
 }
 stop(){
   for n in $names; do
-    [ -f $meshr/var/run/$n.pid ] && {
+    ( [ -f $meshr/var/run/$n.pid ] || ps | grep "$a2" | grep  -m 1 -v "grep\|start-stop-daemon" | awk '{print $1}' > $meshr/var/run/$n.pid ) && (
       kill -9 `cat $meshr/var/run/$n.pid`
       rm $meshr/var/run/$n.pid
-    }  
+      #mv -f $meshr/var/run/$n.pid $meshr/var/run/$n.pid.tmp
+    )
   done
 }
 action=$1
+a2=$2
 name=$(basename $2)
 names=$name
-[ $2 == "" ] && {
+[ $2 == "" ] && (
   [ ! $3 == conn ] && names=$names meshr
   #[ ! $3 == update ] && [ ! $3 == conn ] && names=$names meshr-watchdog
   names=$names olsrd meshr-splash
-  [ $action == stop ] && {
+  [ $action == stop ] && (
     names=$names DualServer DNS2SOCKS badvpn-tun2socks
     . $meshr/lib/setip.bat $meshr/var/run/wifi.txt #> $meshr/tmp/setip.log
     cp $meshr/var/run/wifi.txt $meshr/var/run/wifi2.txt
     rm $meshr/var/run/wifi.txt $meshr/var/run/wifi-formed.txt
-  }
-}
+  )
+)
 shift 1
 case $action in
 stop)

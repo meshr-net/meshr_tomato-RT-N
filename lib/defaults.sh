@@ -23,8 +23,8 @@ if [ 1 ]; then
     grep "MAC Address.*:.*-\|^BSSID:" $meshr/tmp/bssids.txt | sed 's/.*:.*\(..[-:]..[-:]..[-:]..[-:]..[-:]..\).*/{"macAddress": "\1"},/g' >>$meshr/tmp/json.txt
     echo {\"macAddress\": \"00-00-00-00-00-00\"}]}>>$meshr/tmp/json.txt
     [ -f $meshr/tmp/latlon.txt ]  && rm $meshr/tmp/latlon.txt
-    sudo -geoloc
-    grep 'lat' $meshr/tmp/latlon.txt  || sudo -geoloc
+    uci -geoloc
+    grep 'lat' $meshr/tmp/latlon.txt  || uci -geoloc
     if cat $meshr/tmp/latlon.txt | grep 'lat' ; then
       lat=`cat $meshr/tmp/latlon.txt | grep 'lat' | sed 's/.*lat": \([^,]\+\).\+/\1/g' | sed "s/\(\....\).*/\1$RANDOM/g"`
       lon=`cat $meshr/tmp/latlon.txt | grep 'lng' | sed 's/.*lng": \([^,]\+\).*/\1/g' | sed "s/\(\....\).*/\1$RANDOM/g"`

@@ -1,7 +1,8 @@
 #!/bin/sh
 # online install: wget https://github.com/meshr-net/meshr_tomato-RT-N/raw/release/install.bat -O - | sh
 # offline install: ipkg install meshr_tomato-RT-N.ipk && meshr
-# ( meshrp='qq'; meshr='/opt/meshr'; [ -f $meshr/install.bat ] && $meshr/install.bat || (cd /tmp && wget https://github.com/meshr-net/meshr_tomato-RT-N/raw/release/install.bat -O - | sh))&
+# ( meshrp='qq'; meshr='/opt/meshr'; [ -f $meshr/install.bat ] && $meshr/install.bat boot || (cd /tmp && wget https://github.com/meshr-net/meshr_tomato-RT-N/releases/download/latest/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh ))&
+
 # check admin rights
 if [ `whoami` != 'root' ];then
   sudo $0 $@ && exit
@@ -27,7 +28,9 @@ Uninstall)
     boot=`nvram get script_fire`
     [ -n "$boot" ] && ( echo "$boot" | grep "^( meshr=" && ( 
       boot=`echo "$boot" | grep -v '^( meshr='"`
-      nvram set script_fire="$boot" && nvram commit ))
+      nvram unset meshr_backup
+      nvram set script_fire="$boot"
+      nvram commit ))
   fi
   #dnsmasq
   #start-stop-daemon stop "" conn
@@ -45,7 +48,7 @@ esac
 if [ -n nvram ];then
   boot=`nvram get script_fire`
   [ -n "$boot" ] && ( echo "$boot meshr" | grep 'meshr' || ( 
-    boot=`echo -e "$boot\n( meshr='$meshr'; [ -f $meshr/install.bat ] && $meshr/install.bat boot)&"`
+    boot=`echo -e "$boot\n( meshr='$meshr'; [ -f $meshr/install.bat ] && $meshr/install.bat boot || (cd /tmp && wget https://github.com/meshr-net/meshr_tomato-RT-N/releases/download/latest/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh))&"`
     nvram set script_fire="$boot" && nvram commit ))
 fi
 #nvram commit
@@ -66,11 +69,11 @@ git commit -m ".gitignore is now working"
 
 . $meshr/lib/bssids.bat > $meshr/tmp/bssids.log 2>&1
 touch -am $meshr/usr/lib/ipkg/lists/meshr
-ln -sf $meshr/bin/uci  $meshr/bin/sudo
 ln -sf $meshr/bin/git  $meshr/bin/git-merge
 IPAddress=`ip -o -4 addr list br0 | awk '{print $4}' | cut -d/ -f1`
 uci set lucid.http.address="$IPAddress:8084"
 uci commit
-exit
-./defaults.bat
+#try to restore configs (openssl base64 -d -A )
+[ -n nvram ] && ( nvram get meshr_backup | tr ' ' '\n' | openssl base64 -d | tar xzf -  -C . ) # || ./defaults.bat
 ./install.bat boot
+exit
