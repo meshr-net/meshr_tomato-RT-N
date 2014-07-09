@@ -18,8 +18,9 @@ checkpasswd)
   [ -n nvram ] && [ "$2" = "$(nvram get meshrp)" ] && echo "ok"
   exit;;
 boot)
+  iptables -I INPUT 1 -i eth1 -p tcp --dport 2006 -j ACCEPT
   iptables -I INPUT 1 -i eth1 -p tcp --dport 1979 -j ACCEPT
-  iptables -I INPUT 1 -i eth1 -p udp --dport 698 -j ACCEPT
+  iptables -I INPUT 1 -i eth1 -p udp --dport 698 -j ACCEPT #`bin/uci show olsrd| grep -E '[Pp]ort.*[0-9]+' | sed "s/.*port[^0-9]//gI"`
   $meshr/bin/start-stop-daemon start $meshr/lucid.bat
   $meshr/bin/start-stop-daemon start $meshr/lib/watchdog.bat
   exit;;

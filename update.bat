@@ -88,7 +88,7 @@ git_reset(){
 }
 
 [ -z $meshr ] && meshr=`pwd`
-PATH=$PATH:$meshr/bin
+PATH=$meshr/bin:$PATH
 t=$(date +%H%M%S-%d.%m.%Y)
 tar="tmp/push_$t.tar"
 backup="tmp/backup_$t.tar"

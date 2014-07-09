@@ -39,12 +39,12 @@ do
   if [ ! -f $meshr/var/run/wifi.txt ]; then
    [ "$status" == "formed $ssid" ] && continue    
    # disconnected : trying to connect
-   [ "$status" == "disconnected" ] && {
+   [ "$status" == "disconnected" ] && (
       find $meshr/var/run/wifi-formed.txt -mmin +15 | grep "wifi" && rm $meshr/var/run/wifi-formed.txt
       find $meshr/var/run/wifi-formed.txt -mmin +2 | grep "wifi" && continue
       wlan conn $guid $ssid > tmp/conn.log &&  echo $ssid>$meshr/var/run/wifi-formed.txt
-      continue
-   }  
+      sleep 1 && wl_status
+   ) 
    # connecting to meshr.net
    if [ "$status" == "connected to $ssid" ]; then
       #get current settings
@@ -61,7 +61,7 @@ do
       # TODO: save routes? route | grep $guid to $DefaultIPGateway + restore in setip
       # run DHCP server ASAP
     
-      start-stop-daemon stop olsrd
+      start-stop-daemon stop $meshr/bin/olsrd
       . $meshr/lib/setip.bat $meshr/etc/wlan/$ssid.txt #> $meshr/tmp/setip.log
       if [ "$online" == "1" ];then
         start-stop-daemon start $meshr/meshr-splash.bat
