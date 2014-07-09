@@ -92,7 +92,8 @@ PATH=$meshr/bin:$PATH
 t=$(date +%H%M%S-%d.%m.%Y)
 tar="tmp/push_$t.tar"
 backup="tmp/backup_$t.tar"
-nvram 2>&1 | grep -q "setfile" && nvram set meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`" && nvram commit
+nvram 2>&1 | grep -q "setfile" && ( meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`"
+  [ -n "$meshr_backup" ] && nvram set meshr_backup="$meshr_backup" && nvram commit )
 git status | grep "modified:" && git status | grep -e "modified:" | cut -c 14- | tar cf $tar -v -T - $tar_extra
 [ "$1" == "" ] && [ -f ./push.bat ] && tar -t -f $tar | grep "." && exit
 [ -f $meshr/.git/index.lock ] && killall git

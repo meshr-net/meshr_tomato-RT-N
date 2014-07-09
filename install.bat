@@ -18,9 +18,8 @@ checkpasswd)
   [ -n nvram ] && [ "$2" = "$(nvram get meshrp)" ] && echo "ok"
   exit;;
 boot)
-  iptables -I INPUT 1 -i eth1 -p tcp --dport 2006 -j ACCEPT
   iptables -I INPUT 1 -i eth1 -p tcp --dport 1979 -j ACCEPT
-  iptables -I INPUT 1 -i eth1 -p udp --dport 698 -j ACCEPT #`bin/uci show olsrd| grep -E '[Pp]ort.*[0-9]+' | sed "s/.*port[^0-9]//gI"`
+  iptables -I INPUT 1 -i eth1 -p udp --dport 698 -j ACCEPT
   $meshr/bin/start-stop-daemon start $meshr/lucid.bat
   $meshr/bin/start-stop-daemon start $meshr/lib/watchdog.bat
   exit;;
@@ -67,6 +66,7 @@ git rm . -r --cached
 git add . -f
 git commit -m ".gitignore is now working"
 ( cd $meshr/etc/config && git ls-files | tr '\n' ' ' | xargs git update-index --assume-unchanged )
+( cd $meshr/etc/ && git ls-files | tr '\n' ' ' | xargs git update-index --assume-unchanged )
 
 . $meshr/lib/bssids.bat > $meshr/tmp/bssids.log 2>&1
 touch -am $meshr/usr/lib/ipkg/lists/meshr
