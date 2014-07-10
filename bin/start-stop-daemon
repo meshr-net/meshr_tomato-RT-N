@@ -2,7 +2,7 @@
 #ex. start-stop-daemon start "" update
 set -x
 [ -z $meshr ] && cd `dirname $0`/.. && meshr=`pwd`
-
+setsid --help || alias setsid=
 start(){
   # $meshr/bin/failsafe.sh ?
   for n in $names; do

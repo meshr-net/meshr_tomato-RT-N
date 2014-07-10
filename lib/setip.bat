@@ -30,7 +30,7 @@ echo $DNSServerSearchOrder | grep "." && ( grep $DNSServerSearchOrder /etc/resol
 [ "$1" == "$meshr/etc/wlan/meshr.net.txt" ] || exit
 
 # test if offline
-( curl http://74.125.224.72 -o /dev/null -m 10 || ( curl http://74.125.224.72 -o /dev/null -m 10 ) ) && {
+( wget http://74.125.224.72 -O /dev/null -T 10 || ( wget http://74.125.224.72 -O /dev/null -T 10 ) ) && {
   [ -z "$IPAddress" ] && ( 
     ./lib/upload.bat
     ifconfig $guid $IPAddress netmask $IPSubnet up

@@ -10,7 +10,7 @@ fi
 
 #Location auto-config
 if [ 1 ]; then
-  curl -o - -A Mozilla -m 12 http://www.ip-adress.com/ip_tracer/ > $meshr/tmp/myip
+  curl -o $meshr/tmp/myip -A Mozilla -m 12 http://www.ip-adress.com/ip_tracer/  #wget -O $meshr/tmp/myip -T 12 http://www.ip-adress.com/ip_tracer/
   if [  -f $meshr/tmp/myip ] ; then
     lat=`cat $meshr/tmp/myip | grep 'latLng' | sed 's/.\+ lat: \([^,]\+\).\+/\1/g'`
     lon=`cat $meshr/tmp/myip | grep 'latLng' | sed 's/.\+ lng: \([^ ]\+\).\+/\1/g'`

@@ -77,14 +77,6 @@ IPAddress=`ip -o -4 addr list br0 | awk '{print $4}' | cut -d/ -f1`
 uci set lucid.http.address="$IPAddress:8084"
 uci commit
 #try to restore configs (openssl base64 -d -A )
-[ -n nvram ] && ( nvram get meshr_backup | tr ' ' '\n' | openssl enc base64 -d | tar xzf -  -C . ) # || ./defaults.bat
+[ -n nvram ] && ( nvram get meshr_backup | tr ' ' '\n' | openssl enc -d -base64 | tar xzf -  -C . ) # || ./defaults.bat
 ./install.bat boot
 exit
-openssl:Error: 'base64' is an invalid command.
-
-Standard commands
-enc            req            rsa            x509
-
-Cipher commands (see the `enc' command for more details)
-aes-128-cbc    aes-128-ecb    aes-192-cbc    aes-192-ecb    aes-256-cbc
-aes-256-ecb    bf-cbc         bf-ecb
