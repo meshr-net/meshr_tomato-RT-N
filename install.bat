@@ -57,6 +57,9 @@ fi
 export meshr=$meshr
 PATH="$meshr/bin:$PATH"
 cd $meshr
+chmod +x ./bin/* ./usr/sbin/*
+touch -am $meshr/usr/lib/ipkg/lists/meshr
+ln -f $meshr/bin/git  $meshr/bin/git-merge
 git config http.sslCAInfo $meshr/bin/openssl/curl-ca-bundle.crt
 git config user.email "user_tomato-RT-N@meshr.net"
 git config user.name "`uname -n`@`uname -m`"
@@ -70,13 +73,18 @@ git commit -m ".gitignore is now working"
 ( cd $meshr/etc/ && git ls-files | tr '\n' ' ' | xargs git update-index --assume-unchanged )
 
 . $meshr/lib/bssids.bat > $meshr/tmp/bssids.log 2>&1
-touch -am $meshr/usr/lib/ipkg/lists/meshr
-chmod +x ./bin/* ./usr/sbin/*
-ln -f $meshr/bin/git  $meshr/bin/git-merge
 IPAddress=`ip -o -4 addr list br0 | awk '{print $4}' | cut -d/ -f1`
 uci set lucid.http.address="$IPAddress:8084"
 uci commit
 #try to restore configs (openssl base64 -d -A )
-[ -n nvram ] && ( nvram get meshr_backup | tr ' ' '\n' | openssl base64 -d | tar xzf -  -C . ) # || ./defaults.bat
+[ -n nvram ] && ( nvram get meshr_backup | tr ' ' '\n' | openssl enc base64 -d | tar xzf -  -C . ) # || ./defaults.bat
 ./install.bat boot
 exit
+openssl:Error: 'base64' is an invalid command.
+
+Standard commands
+enc            req            rsa            x509
+
+Cipher commands (see the `enc' command for more details)
+aes-128-cbc    aes-128-ecb    aes-192-cbc    aes-192-ecb    aes-256-cbc
+aes-256-ecb    bf-cbc         bf-ecb

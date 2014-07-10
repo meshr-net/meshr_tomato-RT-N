@@ -59,6 +59,7 @@ git reset --hard origin/%branch% < NUL || (
 )
 tar xf %backup%  -C . --ignore-failed-read  --ignore-command-error
 git add . -u
+git commit -m ".gitignore is now working"
 goto :EOF
 BATFILE
 
@@ -85,6 +86,7 @@ git_reset(){
   )
   tar xf $backup  -C . $tar_extra3
   git add . -u
+  git commit -m ".gitignore is now working"
 }
 
 [ -z $meshr ] && meshr=`pwd`
