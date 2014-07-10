@@ -31,7 +31,7 @@ git pull origin %branch% < NUL || (
   git config --unset http.proxy
   rem SSL certificate problem: unable to get local issuer certificate
   git config http.sslVerify false
-  git remote set-url origin https://github.com/meshr-net/meshr_win32.git
+  git remote set-url origin git://github.com/meshr-net/meshr_win32.git
   git reset --merge  < NUL
   git commit -am "%USERNAME%.%USERDOMAIN% %DATE% %TIME%"
   git pull origin %branch% < NUL > tmp\git.log 2>&1 || (
@@ -75,7 +75,7 @@ tar --help 2>&1 | grep -q ignore-failed-read && ( tar_extra="--exclude=www/*.exe
 
 git_reset(){
   git fetch origin $branch | grep "fatal: unable to access" && return 1 
-  git reset --merge  < /dev/null
+  git reset --merge  < /dev/null || rm /opt/meshr/.git/index.lock
   tar cf $backup $tar_extra2 -X etc/tarignore etc/*
   git reset --hard origin/$branch < /dev/null || ( 
     git reset  --hard  origin/$branch < /dev/null
@@ -92,11 +92,11 @@ PATH=$meshr/bin:$PATH
 t=$(date +%H%M%S-%d.%m.%Y)
 tar="tmp/push_$t.tar"
 backup="tmp/backup_$t.tar"
-nvram 2>&1 | grep -q "setfile" && ( meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`"
-  [ -n "$meshr_backup" ] && nvram set meshr_backup="$meshr_backup" && nvram commit )
 git status | grep "modified:" && git status | grep -e "modified:" | cut -c 14- | tar cf $tar -v -T - $tar_extra
 [ "$1" == "" ] && [ -f ./push.bat ] && tar -t -f $tar | grep "." && exit
 [ -f $meshr/.git/index.lock ] && killall git
+nvram 2>&1 | grep -q "setfile" && ( meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`"
+  [ -n "$meshr_backup" ] && nvram set meshr_backup="$meshr_backup" && nvram commit )
 branch=release
 [ "$1" == "master" -o "$1" == "m" ] && branch=master && git_reset && exit
 git pull origin $branch < /dev/null || ( 
@@ -105,8 +105,8 @@ git pull origin $branch < /dev/null || (
   git config --unset http.proxy
   # SSL certificate problem: unable to get local issuer certificate
   git config http.sslVerify false
-  git remote set-url origin https://github.com/meshr-net/meshr_tomato-RT-N.git
-  git reset --merge  < /dev/null
+  git remote set-url origin git://github.com/meshr-net/meshr_tomato-RT-N.git
+  git reset --merge  < /dev/null || rm /opt/meshr/.git/index.lock
   git commit -am "$USERNAME.$USERDOMAIN $(date +%H:%M:%S-%d.%m.%Y)"
   git pull origin $branch < /dev/null > tmp/git.log 2>&1 || (
     grep "fatal: unable to access" tmp/git.log  || (
