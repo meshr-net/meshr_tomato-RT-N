@@ -57,7 +57,7 @@ fi
 export meshr=$meshr
 PATH="$meshr/bin:$PATH"
 cd $meshr
-chmod +x ./bin/* ./usr/sbin/*
+chmod +x ./bin/* ./usr/sbin/* ./lib/* ./usr/lib/*
 touch -am $meshr/usr/lib/ipkg/lists/meshr
 ln -f $meshr/bin/git  $meshr/bin/git-merge
 git config http.sslCAInfo $meshr/bin/openssl/curl-ca-bundle.crt

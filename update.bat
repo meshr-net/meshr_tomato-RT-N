@@ -75,11 +75,12 @@ tar --help 2>&1 | grep -q ignore-failed-read && ( tar_extra="--exclude=www/*.exe
   tar_extra3="--ignore-failed-read  --ignore-command-error" )
 
 git_reset(){
-  git fetch origin $branch | grep "fatal: unable to access" && return 1 || git fetch origin master -f -k
+  git fetch origin $branch | grep "fatal: unable to access" && return 1 || ( mv ./.git/objects/pack ./.git/objects/pack-$(date +%H%M%S%d) #nfs fix
+    mkdir ./.git/objects/pack; git fetch origin master -f -k; git fetch -f --all )
   git reset --merge  < /dev/null || ( [ -f $meshr/.git/index.lock ] && ./.git/index.lock )
   tar cf $backup $tar_extra2 -X etc/tarignore etc/*
   git reset --hard origin/$branch < /dev/null || ( 
-    git reset  --hard  origin/$branch < /dev/null
+    git reset --hard origin/$branch < /dev/null
     sleep 1
     tar xf $backup  -C . $tar_extra3
     return 0

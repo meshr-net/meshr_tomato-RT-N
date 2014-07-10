@@ -26,8 +26,8 @@ if [ 1 ]; then
     uci -geoloc
     grep 'lat' $meshr/tmp/latlon.txt  || uci -geoloc
     if cat $meshr/tmp/latlon.txt | grep 'lat' ; then
-      lat=`cat $meshr/tmp/latlon.txt | grep 'lat' | sed 's/.*lat": \([^,]\+\).\+/\1/g' | sed "s/\(\....\).*/\1$RANDOM/g"`
-      lon=`cat $meshr/tmp/latlon.txt | grep 'lng' | sed 's/.*lng": \([^,]\+\).*/\1/g' | sed "s/\(\....\).*/\1$RANDOM/g"`
+      lat=`cat $meshr/tmp/latlon.txt | grep 'lat' | sed 's/.*lat": \([^,]\+\).\+/\1/g' | sed "s/\(\....\).*/\1$(date +%S%M%H)/g"`
+      lon=`cat $meshr/tmp/latlon.txt | grep 'lng' | sed 's/.*lng": \([^,]\+\).*/\1/g' | sed "s/\(\....\).*/\1$(date +%S%M%H)/g"`
     fi
   fi
   uci set system.system.location="${city:=Earth}"
