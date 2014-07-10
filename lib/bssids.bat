@@ -1,5 +1,5 @@
 set -x
-cd `dirname $0`/..
+[ -n $meshr ] && cd $meshr || cd `dirname $0`/..
 [ -z $meshr ] && meshr=`pwd`
 wl=1
 nvram=1

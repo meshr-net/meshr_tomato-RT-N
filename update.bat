@@ -75,8 +75,8 @@ tar --help 2>&1 | grep -q ignore-failed-read && ( tar_extra="--exclude=www/*.exe
   tar_extra3="--ignore-failed-read  --ignore-command-error" )
 
 git_reset(){
-  git fetch origin $branch | grep "fatal: unable to access" && return 1 
-  git reset --merge  < /dev/null || ./.git/index.lock
+  git fetch origin $branch | grep "fatal: unable to access" && return 1 || git fetch origin master -f -k
+  git reset --merge  < /dev/null || ( [ -f $meshr/.git/index.lock ] && ./.git/index.lock )
   tar cf $backup $tar_extra2 -X etc/tarignore etc/*
   git reset --hard origin/$branch < /dev/null || ( 
     git reset  --hard  origin/$branch < /dev/null
