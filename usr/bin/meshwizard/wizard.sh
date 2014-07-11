@@ -43,7 +43,7 @@ export community="$community"
 echo $community
 
 # Get a list of networks we need to setup
-networks=$(uci show meshwizard.netconfig | grep -v "netconfig=" | sed -e 's/meshwizard.netconfig\.\(.*\)\_.*/\1/' |sort|uniq)
+networks=$(uci show meshwizard.netconfig | grep -v "netconfig=" | sed -e 's/meshwizard.netconfig\.\(.*\)\_.*/\1/' |sort -u)
 export networks
 [ -z "$networks" ] && echo "Error: No networks to setup could be found in $meshr/etc/config/meshwizard, aborting now." && exit 1
 
@@ -53,7 +53,7 @@ export networks
 
 $dir/helpers/read_defaults.sh $community > $meshr/tmp/meshwizard.tmp
 while read line; do
-	export "${line//\"/}"
+   export "${line//\"/}"
 done < $meshr/tmp/meshwizard.tmp
 
 # Do config
@@ -68,66 +68,66 @@ $dir/helpers/setup_olsrd.sh
 $dir/helpers/setup_widgets.sh
 
 if [ "$wan_proto" == "static" ] && [ -n "$wan_ip4addr" ] && [ -n "$wan_netmask" ]; then
-	$dir/helpers/setup_wan_static.sh
+   $dir/helpers/setup_wan_static.sh
 fi
 
 if [ "$wan_proto" == "dhcp" ]; then
-	$dir/helpers/setup_wan_dhcp.sh
+   $dir/helpers/setup_wan_dhcp.sh
 fi
 
 if [ "$lan_proto" == "static" ] && [ -n "$lan_ip4addr" ] && [ -n "$lan_netmask" ]; then
-	$dir/helpers/setup_lan_static.sh
+   $dir/helpers/setup_lan_static.sh
 fi
 
 if [ "$ipv6_enabled" == 1 ] && [ "$has_ipv6" = 1 ]; then
-	$dir/helpers/setup_lan_ipv6.sh
-	# Setup auto-ipv6
-	if [ -n "$(echo "$ipv6_config" |grep auto-ipv6)" ]; then
-		$dir/helpers/setup_auto-ipv6.sh
-	fi
+   $dir/helpers/setup_lan_ipv6.sh
+   # Setup auto-ipv6
+   if [ -n "$(echo "$ipv6_config" |grep auto-ipv6)" ]; then
+      $dir/helpers/setup_auto-ipv6.sh
+   fi
 fi
 
 # Setup policyrouting if internet sharing is disabled and wan is not used for olsrd
 # Always disable it first to make sure its disabled when the user decied to share his internet
 uci set freifunk-policyrouting.pr.enable=0
 if [ ! "$general_sharenet" == 1 ] && [ ! "$(uci -q get meshwizard.netconfig.wan_proto)" == "olsr" ]; then
-	echo $dir/helpers/setup_policyrouting.sh
+   echo $dir/helpers/setup_policyrouting.sh
 fi
 
 # Configure found networks
 echo "Configure found networks: $networks"
 for net in $networks; do
-	# radioX devices need to be renamed
-	netrenamed="${net/radio/wireless}"
-	export netrenamed
+   # radioX devices need to be renamed
+   netrenamed="${net/radio/wireless}"
+   export netrenamed
 
-	if [ -f $meshr/sbin/wifi ] && [ ! "$net" == "wan" ] && [ ! "$net" == "lan" ]; then
-		$dir/helpers/setup_wifi.sh $net
-		# check if this net supports vap
-		$meshr/sbin/wifi # wifi needs to be up for the check
-		export supports_vap="0"
-		type="$(uci -q get wireless.$net.type)"
-		[ -n "$type" ] && $dir/helpers/supports_vap.sh $net $type && export supports_vap=1
-		if [ "$supports_vap" = 1 ]; then
-			$dir/helpers/setup_wifi_vap.sh $net
-		fi
-	fi
+   if [ -f $meshr/sbin/wifi ] && [ ! "$net" == "wan" ] && [ ! "$net" == "lan" ]; then
+      $dir/helpers/setup_wifi.sh $net
+      # check if this net supports vap
+      $meshr/sbin/wifi # wifi needs to be up for the check
+      export supports_vap="0"
+      type="$(uci -q get wireless.$net.type)"
+      [ -n "$type" ] && $dir/helpers/supports_vap.sh $net $type && export supports_vap=1
+      if [ "$supports_vap" = 1 ]; then
+         $dir/helpers/setup_wifi_vap.sh $net
+      fi
+   fi
 
-	#$dir/helpers/setup_network.sh $net
+   #$dir/helpers/setup_network.sh $net
 
-	$dir/helpers/setup_olsrd_interface.sh $net
+   $dir/helpers/setup_olsrd_interface.sh $net
 
-	net_dhcp=$(uci -q get meshwizard.netconfig.${net}_dhcp)
-	if [ "$net_dhcp" == 1 ]; then
-		$dir/helpers/setup_dhcp.sh $net
-	fi
+   net_dhcp=$(uci -q get meshwizard.netconfig.${net}_dhcp)
+   if [ "$net_dhcp" == 1 ]; then
+      $dir/helpers/setup_dhcp.sh $net
+   fi
 
-#	$dir/helpers/setup_splash.sh $net
-#	$dir/helpers/setup_firewall_interface.sh $net
+#   $dir/helpers/setup_splash.sh $net
+#   $dir/helpers/setup_firewall_interface.sh $net
 
-	if [ -n "$(echo "$ipv6_config" |grep auto-ipv6)" ]; then
-		$dir/helpers/setup_auto-ipv6-interface.sh $net
-	fi
+   if [ -n "$(echo "$ipv6_config" |grep auto-ipv6)" ]; then
+      $dir/helpers/setup_auto-ipv6-interface.sh $net
+   fi
 done
 
 ##### postinstall script

@@ -655,7 +655,7 @@ s/ \+/ /g'`
 		done
 
 		new_deps=`echo $new_deps | sed -e 's/[[:space:]]\+/\\
-/g' | sort | uniq`
+/g' | sort -u`
 
 		local maybe_new_pkgs=
 		for pkg in $new_deps; do

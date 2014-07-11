@@ -16,7 +16,8 @@ start(){
 stop(){
   for n in $names; do
     ( [ -f $meshr/var/run/$n.pid ] || ps | grep "$a2" | grep  -m 1 -v "grep\|start-stop-daemon" | awk '{print $1}' > $meshr/var/run/$n.pid ) && (
-      kill -9 `cat $meshr/var/run/$n.pid`
+      pid=`cat $meshr/var/run/$n.pid`
+      [ -n $pid ] && kill -9 $pid
       rm $meshr/var/run/$n.pid
       #mv -f $meshr/var/run/$n.pid $meshr/var/run/$n.pid.tmp
     )
