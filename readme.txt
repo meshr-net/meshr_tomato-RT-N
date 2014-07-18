@@ -23,8 +23,8 @@
 ### Installation requirements
  
    Meshr requires router with TomatoUSB firmware. Tested version are:
-     * Tomato by Shibby MIPSR2-115 K26 USB AIO-64K with tomatoware(?)
-       installed.
+     * Tomato by Shibby MIPSR2-115 K26 USB AIO-64K with and without
+       tomatoware installed.
        
 
 ### Installation guide
@@ -150,8 +150,8 @@ Everyday use
                  direct connection between them. It also advertised TOR
                  proxy servers for Internet access.
          2. If all users disconnect from your node then meshr stops TOR,
-            DualServer and meshr-splash services and restores your old IP
-            settings (it happens only under Windows) .
+            DualServer/dnsmasq and meshr-splash services and restores
+            your old IP settings (it happens only under Windows) .
     2. If your computer has no Internet access and you are connecting to
        meshr node (wireless network with meshr.net name) then
          1. If you haven't installed meshr software then you will get
@@ -174,4 +174,4 @@ Everyday use
 
 * Yury Popov (<meshr.net[at]googlemail.com>)
 
-This file is generated automatically from http://Meshr.Net wiki pages
+This file is generated automatically from http://meshr.net wiki pages

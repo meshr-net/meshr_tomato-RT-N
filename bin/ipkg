@@ -17,7 +17,7 @@
 #set -x
 
 ipkg_self_extracting () {
-  local sz=29913
+  local sz=29909
   head -c $sz $0 > ipkg
   chmod +x ipkg
   tail -c +$((++sz)) $0 > ${0%???}

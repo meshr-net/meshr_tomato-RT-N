@@ -3,7 +3,7 @@
 # offline install: ipkg install meshr_tomato-RT-N.ipk && meshr
 # https://github.com/meshr-net/meshr_tomato-RT-N/releases/download/latest/meshr-tomato-rt-n_mipsel.ipk.sh
 # ( meshrp='qq'; meshr='/opt/meshr'; [ -f $meshr/install.bat ] && $meshr/install.bat boot || (cd /tmp && wget http://meshr.net/dl/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh ))&
-
+#https://github.com/meshr-net/meshr_tomato-RT-N/releases/download/latest/meshr-tomato-rt-n_mipsel.ipk.sh
 # check admin rights
 if [ `whoami` != 'root' ];then
   sudo $0 $@ && exit
@@ -49,7 +49,7 @@ esac
 if [ -n nvram ];then
   boot=`nvram get script_fire`
   [ -n "$boot" ] && ( echo "$boot" | grep 'meshr' || ( 
-    boot=`echo -e "$boot\n( meshr='$meshr'; [ -f $meshr/install.bat ] && $meshr/install.bat boot || (cd /tmp && wget https://github.com/meshr-net/meshr_tomato-RT-N/releases/download/latest/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh))&"`
+    boot=`echo -e "$boot\n( meshr='$meshr'; [ -f $meshr/install.bat ] && $meshr/install.bat boot || (cd /tmp && wget http://meshr.net/dl/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh))&"`
     nvram set script_fire="$boot" && nvram commit ))
 fi
 #nvram commit

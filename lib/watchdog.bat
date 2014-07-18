@@ -17,7 +17,6 @@ wl_status() {
     wl -i $guid status  > $meshr/tmp/wlan.log
     grep -q "\"off\"\|error" $meshr/tmp/wlan.log && status="error"
     grep -q "SSID: \"$ssid\"" $meshr/tmp/wlan.log && status="connected to $ssid"
-    
     grep -q "formed: \"$ssid\"" $meshr/tmp/wlan.log && status="formed $ssid"
     grep -q "Not associated\|disconnected: \"$ssid\"" $meshr/tmp/wlan.log && status="disconnected"
   fi  

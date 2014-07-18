@@ -100,6 +100,7 @@ git status | grep "modified:" && git status | grep -e "modified:" | cut -c 14- |
 [ -f $meshr/.git/index.lock ] && killall git
 nvram 2>&1 | grep -q "setfile" && ( meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`"
   [ -n "$meshr_backup" ] && nvram set meshr_backup="$meshr_backup" && nvram commit )
+[ "$1" == "backup" ] && exit
 branch=release
 [ "$1" == "master" -o "$1" == "m" ] && branch=master && git_reset && exit
 git pull origin $branch < /dev/null || ( 

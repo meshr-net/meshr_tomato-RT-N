@@ -11,6 +11,7 @@ find_wlan_int() {(
 	echo $wlan
 )}
 
+cd $meshr
 touch ./tmp/bssids.txt
 grep "guid" $meshr/etc/wifi.txt || {
   # default config
