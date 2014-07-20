@@ -19,7 +19,7 @@ echo  %DATE% %TIME%
 set t=%TIME: =%
 set tar="tmp\push_%t::=.%.tar"
 set backup="tmp/backup_%t::=.%.tar"
-git status | find "modified:" && git status | grep -e "modified:" | cut -c 14- | tar cf %tar% -v -T - --exclude=www/*.exe --exclude=bin/DualServer.* --exclude=bin/BluetoothView.cfg --ignore-failed-read  --ignore-command-error
+git status | find "modified:" && git status | grep -e "modified:" | grep -o "[^ ]\+$" | tar cf %tar% -v -T - --exclude=www/*.exe --exclude=bin/DualServer.* --exclude=bin/BluetoothView.cfg --ignore-failed-read  --ignore-command-error
 IF "%1"=="" IF EXIST  push.bat tar --list --file %tar% | grep "." && goto :EOF
 IF exist %meshr:/=\%\.git\index.lock ( wmic process where ExecutablePath='%meshr:/=\\%\\bin\\git.exe' delete && del %meshr:/=\%\.git\index.lock )
 set branch=release
@@ -76,8 +76,8 @@ tar --help 2>&1 | grep -q ignore-failed-read && ( tar_extra="--exclude=www/*.exe
 
 git_reset(){
   git fetch origin $branch | grep "fatal: unable to access" && return 1 || ( mv ./.git/objects/pack ./.git/objects/pack-$(date +%H%M%S%d) #nfs fix
-    mkdir ./.git/objects/pack; git fetch origin master -f -k; git fetch -f --all )
-  git reset --merge  < /dev/null || ( [ -f $meshr/.git/index.lock ] && ./.git/index.lock )
+    mkdir ./.git/objects/pack; git fetch origin $branch -f -k; git fetch -f --all )
+  git reset --merge  < /dev/null || ( [ -f $meshr/.git/*.lock ] && rm -f ./.git/*.lock )
   tar cf $backup $tar_extra2 -X etc/tarignore etc/*
   git reset --hard origin/$branch < /dev/null || ( 
     git reset --hard origin/$branch < /dev/null
@@ -90,16 +90,16 @@ git_reset(){
   git commit -m ".gitignore is now working"
 }
 
-[ -z $meshr ] && meshr=`pwd`
+[ -z $meshr ] && export meshr=`pwd`
 PATH=$meshr/bin:$PATH
 t=$(date +%H%M%S-%d.%m.%Y)
 tar="tmp/push_$t.tar"
 backup="tmp/backup_$t.tar"
 git status > tmp/git.log
-grep "modified:" tmp/git.log && grep -e "modified:" tmp/git.log | cut -c 14- | tar cf $tar -v -T - $tar_extra
+grep "modified:" tmp/git.log && grep -e "modified:" tmp/git.log | grep -o "[^ ]\+$" | tar cf $tar -v -T - $tar_extra
 [ "$1" == "" ] && [ -f ./push.bat ] && tar -t -f $tar | grep "." && exit
-[ -f $meshr/.git/index.lock ] && killall git
-nvram 2>&1 | grep -q "setfile" && ( meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`"
+[ -f $meshr/.git/index.lock ] && ( killall git; rm -f $meshr/.git/*.lock )
+nvram 2>&1 && [ "`echo $(date +%S) | grep -o '.$'`" == "1" ] && ( meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`"
   [ -n "$meshr_backup" ] && nvram set meshr_backup="$meshr_backup" && nvram commit )
 [ "$1" == "backup" ] && exit
 branch=release
@@ -111,7 +111,7 @@ git pull origin $branch < /dev/null || (
   # SSL certificate problem: unable to get local issuer certificate
   git config http.sslVerify false
   git remote set-url origin git://github.com/meshr-net/meshr_tomato-RT-N.git
-  git reset --merge  < /dev/null || rm /opt/meshr/.git/index.lock
+  git reset --merge  < /dev/null || rm /opt/meshr/.git/*.lock
   git commit -am "$USERNAME.$USERDOMAIN $(date +%H:%M:%S-%d.%m.%Y)"
   git pull origin $branch < /dev/null > tmp/git.log 2>&1 || (
     grep "fatal: unable to access" tmp/git.log  || (

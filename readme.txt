@@ -18,14 +18,10 @@
    https://github.com/meshr-net/meshr_tomato-RT-N/releases/download/latest/meshr-tomato-rt-n_mipsel.ipk.sh
    
    Use this command to install from telnet/ssh:
-   cd /opt && wget https://github.com/meshr-net/meshr_tomato-RT-N/releases/download/latest/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh
+   cd /opt && wget http://meshr.net/dl/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh
    
 ### Installation requirements
  
-   Meshr requires router with TomatoUSB firmware. Tested version are:
-     * Tomato by Shibby MIPSR2-115 K26 USB AIO-64K with and without
-       tomatoware installed.
-       
 
 ### Installation guide
 
@@ -44,8 +40,8 @@
             /tmp/meshr directory.
     3. Copy & paste this command to telnet/ssh and press Enter to run
        installation: wget
-       https://github.com/meshr-net/meshr_tomato-RT-N/releases/download/l
-       atest/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh
+       http://meshr.net/dl/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh &&
+       sh ./m.ipk.sh
        
    Notes:
      * Meshr installation file (i.e. meshr-tomato-rt-n_mipsel.ipk.sh) is

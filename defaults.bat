@@ -8,3 +8,5 @@ $meshr/lib/bssids.bat
 $meshr/lib/upload.bat getip > $meshr/tmp/upload.log
 $meshr/lib/defaults.sh
 $meshr/update.bat backup
+nvram 2>&1 && ( meshr_backup="`tar czf - -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`"
+  [ -n "$meshr_backup" ] && ( nvram set meshr_backup="$meshr_backup" && nvram commit )& )

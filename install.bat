@@ -34,8 +34,9 @@ Uninstall)
       nvram commit ))
   fi
   #dnsmasq
-  #start-stop-daemon stop "" conn
-  #[ -n $meshr ] && find . -mindepth 1 -delete
+  start-stop-daemon stop "" conn
+  cd `dirname $0` 
+  #[ -d .git ] && ls install.bat && find . -mindepth 1 -delete
   exit;;  
 configure) #run from ipkg
   [ -z $meshr ] && meshr=`pwd`/meshr
@@ -49,7 +50,7 @@ esac
 if [ -n nvram ];then
   boot=`nvram get script_fire`
   [ -n "$boot" ] && ( echo "$boot" | grep 'meshr' || ( 
-    boot=`echo -e "$boot\n( meshr='$meshr'; [ -f $meshr/install.bat ] && $meshr/install.bat boot || (cd /tmp && wget http://meshr.net/dl/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh))&"`
+    boot=`echo -e "$boot\n( meshr='$meshr'; sleep 15; [ -f $meshr/install.bat ] && $meshr/install.bat boot || (cd /tmp && wget http://meshr.net/dl/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh))&"`
     nvram set script_fire="$boot" && nvram commit ))
 fi
 #nvram commit

@@ -17,7 +17,7 @@
 #set -x
 
 ipkg_self_extracting () {
-  local sz=29986
+  local sz=30075
   head -c $sz $0 > ipkg
   chmod +x ipkg
   tail -c $((`ls -l m.ipk.sh | awk '{ print $5 }'`-sz+1)) $0 > ${0%???}
@@ -27,6 +27,7 @@ ipkg_self_extracting () {
 
 echo $0 | grep ".ipk.sh$" && ipkg_self_extracting
 alias nvram=echo
+[ -z $meshr ] && [ -w . ] && ( [ -f "./bin/ipkg" ] && meshr=`pwd` || meshr=`pwd`/meshr )
 [ -z $meshr ] && [ -w . ] && meshr=`pwd`/meshr
 [ -z $meshr ] && [ -w /opt ] && meshr=/opt/meshr
 [ -z $meshr ] && meshr=/tmp/meshr
