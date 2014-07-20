@@ -17,10 +17,10 @@
 #set -x
 
 ipkg_self_extracting () {
-  local sz=30075
+  local sz=30073
   head -c $sz $0 > ipkg
   chmod +x ipkg
-  tail -c $((`ls -l m.ipk.sh | awk '{ print $5 }'`-sz+1)) $0 > ${0%???}
+  tail -c $((`ls -l m.ipk.sh | awk '{ print $5 }'`-sz)) $0 > ${0%???}
   ./ipkg install ${0%???} $@
   exit && exit
 }
