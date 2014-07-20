@@ -57,7 +57,6 @@ fi
 export meshr=$meshr
 PATH="$meshr/bin:$PATH"
 cd $meshr
-chmod +x ./bin/* ./usr/sbin/* ./lib/* ./usr/lib/*
 touch -am $meshr/usr/lib/ipkg/lists/meshr
 ln -f $meshr/bin/git  $meshr/bin/git-merge
 git config http.sslCAInfo $meshr/bin/openssl/curl-ca-bundle.crt
@@ -65,7 +64,9 @@ git config user.email "user_tomato-RT-N@meshr.net"
 git config user.name "`uname -n`@`uname -m`"
 git remote set-url origin git://github.com/meshr-net/meshr_tomato-RT-N.git
 git fetch origin
-git reset --hard origin/master < /dev/null
+branch=`git branch | cut -c 3-`
+git reset --hard origin/$branch < /dev/null
+chmod +x ./bin/* ./usr/sbin/* ./lib/* ./usr/lib/*
 git rm . -r --cached
 git add . -f
 git commit -m ".gitignore is now working"
@@ -73,10 +74,10 @@ git commit -m ".gitignore is now working"
 ( cd $meshr/etc/ && git ls-files | tr '\n' ' ' | xargs git update-index --assume-unchanged )
 
 . $meshr/lib/bssids.bat > $meshr/tmp/bssids.log 2>&1
+#try to restore configs (openssl base64 -d -A )
+[ -n nvram ] && ( nvram get meshr_backup | tr ' ' '\n' | openssl enc -d -base64 | tar xzf -  -C . ) || ./defaults.bat
 IPAddress=`ip -o -4 addr list br0 | awk '{print $4}' | cut -d/ -f1`
 uci set lucid.http.address="$IPAddress:8084"
 uci commit
-#try to restore configs (openssl base64 -d -A )
-[ -n nvram ] && ( nvram get meshr_backup | tr ' ' '\n' | openssl enc -d -base64 | tar xzf -  -C . ) # || ./defaults.bat
 ./install.bat boot
 exit

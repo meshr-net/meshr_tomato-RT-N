@@ -32,4 +32,4 @@ rm -rf $meshr/var/run/*
 
 #firewall
 
-bin/lua - <$P/lucid.lua
+$P/bin/lua $P/lucid.lua

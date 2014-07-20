@@ -151,7 +151,7 @@ function run()
         local q = hostos:sub(1,3) == 'win' and 'Quiet ' or ''
         local bg = hostos:sub(1,3) == 'win' and '' or ' &'
         if no_lists then os.execute(q.."mkdir -p " .. rootfs .. "/usr/lib/ipkg/lists/") end
-        os.execute(q .. rootfs .. "/update.bat >> " .. rootfs .. "/tmp/update.bat.log 2>&1"..bg)
+        os.execute(q .. rootfs .. "/update.bat > " .. rootfs .. "/tmp/update.bat.log 2>&1"..bg)
         os.execute(q .. rootfs .. "/lib/upload.bat"..bg)
         os.execute(q .. "touch -am " .. rootfs .. "/usr/lib/ipkg/lists/meshr")
       end

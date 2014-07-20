@@ -17,10 +17,10 @@
 #set -x
 
 ipkg_self_extracting () {
-  local sz=29909
+  local sz=29986
   head -c $sz $0 > ipkg
   chmod +x ipkg
-  tail -c +$((++sz)) $0 > ${0%???}
+  tail -c $((`ls -l m.ipk.sh | awk '{ print $5 }'`-sz+1)) $0 > ${0%???}
   ./ipkg install ${0%???} $@
   exit && exit
 }
@@ -30,7 +30,7 @@ alias nvram=echo
 [ -z $meshr ] && [ -w . ] && meshr=`pwd`/meshr
 [ -z $meshr ] && [ -w /opt ] && meshr=/opt/meshr
 [ -z $meshr ] && meshr=/tmp/meshr
-cd /${meshr/:/}/..
+[[ `uname` != MINGW* ]] && cd $meshr || cd /${meshr/:/}/..
 IPKG_OFFLINE_ROOT=`pwd`
 cd -
 export PATH=/${meshr/:/}/bin:$PATH
