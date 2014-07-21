@@ -9,7 +9,7 @@ start(){
      #[ ! -f $meshr/var/run/$n.pid ] && 
      #( nohup $@ && echo $!>$meshr/var/run/$(basename $n).pid ) &
      cmd="$@"
-     setsid nohup /bin/sh -c "$cmd" & #>/dev/null 2>&1 &
+     setsid nohup /bin/sh -c "$cmd" > $meshr/tmp/nohup.out 2>&1 & #>/dev/null 2>&1 &
      echo $!>$meshr/var/run/$(basename $n).pid 
   done
 }

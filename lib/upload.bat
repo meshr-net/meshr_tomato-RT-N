@@ -20,8 +20,9 @@ cd tmp
 echo>arp.txt
 while read ip _ _ mac _ int; do
   if [ "$int" == "$guid" ]; then
-    ping -c 1 $ip || ping -c 1 $ip || ping -c 1 $ip
-    echo $ip >> arp.txt
+    on=UP
+    ping -c 1 $ip || ping -c 1 $ip || on=DOWN
+    echo $ip $mac $on >> arp.txt
   fi  
 done < /proc/net/arp
 ip -s -s neigh flush all

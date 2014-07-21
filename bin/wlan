@@ -18,9 +18,9 @@ conn)
   exit;;
 dc) 
   local guid=$2
-  [ "$wl" == "1" ] && {
-    wl -i $guid down 
-  } || ( [ -n "$iwconfig" ] && iwconfig $guid down )
+  [ "$wl" == "1" ] && (
+    [ -n "$guid" ] && wl -i $guid down || wl down
+  ) || ( [ -n "$iwconfig" ] && iwconfig $guid down )
   exit;;
 gp)
   exit;; 
