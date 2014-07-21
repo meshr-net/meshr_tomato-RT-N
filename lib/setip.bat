@@ -25,7 +25,8 @@ set -x
 echo $DNSServerSearchOrder | grep "." && ( grep $DNSServerSearchOrder /etc/resolv.conf || echo nameserver $DNSServerSearchOrder >>  /etc/resolv.conf )
 [ -z "$IPAddress" ] && (
   ifconfig $guid 0.0.0.0 up
-  udhcpc -q -n -i $guid -s $meshr/usr/sbin/udhcpc.script
+  #wl conn
+  #udhcpc -q -n -i $guid -s $meshr/usr/sbin/udhcpc.script
 )
 [ "$1" == "$meshr/etc/wlan/meshr.net.txt" ] || exit
 

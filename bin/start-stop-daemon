@@ -2,42 +2,45 @@
 #ex. start-stop-daemon start "" update
 set -x
 [ -z $meshr ] && cd `dirname $0`/.. && meshr=`pwd`
-setsid --help || alias setsid=
+setsid --help > /dev/null || alias setsid=
 start(){
   # $meshr/bin/failsafe.sh ?
   for n in $names; do
      #[ ! -f $meshr/var/run/$n.pid ] && 
-     #( nohup $@ && echo $!>$meshr/var/run/$n.pid ) &
+     #( nohup $@ && echo $!>$meshr/var/run/$(basename $n).pid ) &
      cmd="$@"
      setsid nohup /bin/sh -c "$cmd" & #>/dev/null 2>&1 &
-     echo $!>$meshr/var/run/$n.pid 
+     echo $!>$meshr/var/run/$(basename $n).pid 
   done
 }
 stop(){
+  echo $names
   for n in $names; do
-    ( cat $meshr/var/run/$n.pid | grep .. || ps | grep "$a2" | grep -v "grep\|$$" | awk '{print $1}' | tr '\n' ' ' > $meshr/var/run/$n.pid ) && (
-      pid=`cat $meshr/var/run/$n.pid`
+    name=$(basename $n)
+    ( cat $meshr/var/run/$name.pid | grep .. || ps | grep "$n" | grep -v "grep\|$$" | awk '{print $1}' | tr '\n' ' ' > $meshr/var/run/$name.pid ) && (
+      pid=`cat $meshr/var/run/$name.pid`
       [ -n "$pid" ] && kill -9 $pid
-      rm $meshr/var/run/$n.pid
-      #mv -f $meshr/var/run/$n.pid $meshr/var/run/$n.pid.tmp
+      rm $meshr/var/run/$name.pid
+      #mv -f $meshr/var/run/$name.pid $meshr/var/run/$name.pid.tmp
     )
   done
 }
 action=$1
 a2=$2
-name=$(basename $2)
-names=$name
-[ $2 == "" ] && (
-  [ ! $3 == conn ] && names=$names meshr
-  #[ ! $3 == update ] && [ ! $3 == conn ] && names=$names meshr-watchdog
-  names=$names olsrd meshr-splash
-  [ $action == stop ] && (
-    names=$names DualServer DNS2SOCKS badvpn-tun2socks
-    . $meshr/lib/setip.bat $meshr/var/run/wifi.txt #> $meshr/tmp/setip.log
+names=$2
+[ "$a2" == "" ] && {
+  [ ! "$3" == "conn" ] && names="$names $meshr/lucid.bat"
+  #[ ! "$3" == "update" ] && [ ! $3 == conn ] && names="$names $meshr/meshr-watchdog"
+  names="$names $meshr/usr/sbin/olsrd $meshr/meshr-splash.bat"
+  [ $action == stop ] && {
+    names="$names $meshr/bin/DNS2SOCKS $meshr/bin/badvpn-tun2socks $meshr/bin/tor dnsmasq"
+    $meshr/lib/setip.bat $meshr/var/run/wifi.txt #> $meshr/tmp/setip.log
     cp $meshr/var/run/wifi.txt $meshr/var/run/wifi2.txt
     rm $meshr/var/run/wifi.txt $meshr/var/run/wifi-formed.txt
-  )
-)
+    . $meshr/etc/wifi.txt
+    $meshr/bin/wlan $guid dc
+  }
+}
 shift 1
 case $action in
 stop)

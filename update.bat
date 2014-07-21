@@ -99,7 +99,7 @@ git status > tmp/git.log
 grep "modified:" tmp/git.log && grep -e "modified:" tmp/git.log | grep -o "[^ ]\+$" | tar cf $tar -v -T - $tar_extra
 [ "$1" == "" ] && [ -f ./push.bat ] && tar -t -f $tar | grep "." && exit
 [ -f $meshr/.git/index.lock ] && ( killall git; rm -f $meshr/.git/*.lock )
-nvram 2>&1 && [ "`echo $(date +%S) | grep -o '.$'`" == "1" ] && ( meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`"
+nvram > /dev/null 2>&1 && [ "`echo $(date +%S) | grep -o '.$'`" == "1" -o "$1" == "backup"  ] && ( meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`"
   [ -n "$meshr_backup" ] && nvram set meshr_backup="$meshr_backup" && nvram commit )
 [ "$1" == "backup" ] && exit
 branch=release

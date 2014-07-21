@@ -10,6 +10,8 @@ wl=1
 status=0
 PATH="$meshr/bin:$PATH"
 set -x
+exec 1>$meshr/tmp/wd.log
+exec 2>&1
 
 wl_status() {
   local guid=$1

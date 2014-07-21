@@ -22,7 +22,7 @@ boot)
   iptables -I INPUT 1 -i eth1 -p tcp --dport 1979 -j ACCEPT
   iptables -I INPUT 1 -i eth1 -p udp --dport 698 -j ACCEPT
   $meshr/bin/start-stop-daemon start $meshr/lucid.bat
-  $meshr/bin/start-stop-daemon start $meshr/lib/watchdog.bat
+  $meshr/bin/start-stop-daemon start $meshr/lib/watchdog.bat \> $meshr/tmp/wd.log
   exit;;
 Uninstall)
   if [ -n nvram ];then
@@ -66,7 +66,7 @@ git config user.name "`uname -n`@`uname -m`"
 git remote set-url origin git://github.com/meshr-net/meshr_tomato-RT-N.git
 git fetch origin
 branch=`git branch | cut -c 3-`
-git reset --hard origin/$branch < /dev/null
+git reset --hard origin/$branch < /dev/null || rm -f ./.git/*.lock
 chmod +x ./bin/* ./usr/sbin/* ./lib/* ./usr/lib/*
 git rm . -r --cached
 git add . -f
