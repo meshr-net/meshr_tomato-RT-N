@@ -19,7 +19,7 @@ stop(){
     name=$(basename $n)
     ( cat $meshr/var/run/$name.pid | grep .. || ps | grep "$n" | grep -v "grep\|$$" | awk '{print $1}' | tr '\n' ' ' > $meshr/var/run/$name.pid ) && (
       pid=`cat $meshr/var/run/$name.pid`
-      [ -n "$pid" ] && kill -9 $pid
+      [ -n "$pid" ] && kill -s TERM -$pid || kill -9 $pid
       rm $meshr/var/run/$name.pid
       #mv -f $meshr/var/run/$name.pid $meshr/var/run/$name.pid.tmp
     )

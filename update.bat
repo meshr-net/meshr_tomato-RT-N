@@ -73,14 +73,20 @@ fi
 tar --help 2>&1 | grep -q ignore-failed-read && ( tar_extra="--exclude=www/*.exe --ignore-failed-read  --ignore-command-error"
   tar_extra2="--exclude-vcs --ignore-failed-read  --ignore-command-error"
   tar_extra3="--ignore-failed-read  --ignore-command-error" )
-
+fix_git(){
+  mv ./.git/objects/pack ./.git/objects/pack-$(date +%H%M%S%d) #nfs fix
+  mkdir ./.git/objects/pack; git fetch origin $branch -f -k; git fetch -f --all 
+  rm tmp/git.log
+}
 git_reset(){
-  git fetch origin $branch | grep "fatal: unable to access" && return 1 || ( mv ./.git/objects/pack ./.git/objects/pack-$(date +%H%M%S%d) #nfs fix
-    mkdir ./.git/objects/pack; git fetch origin $branch -f -k; git fetch -f --all )
+  git fetch origin $branch > tmp/git.log 2>&1
+  grep "fatal: unable to access" tmp/git.log && return 1
+  grep "fatal: bad --pack" tmp/git.log && fix_git
   git reset --merge  < /dev/null || ( [ -f $meshr/.git/*.lock ] && rm -f ./.git/*.lock )
   tar cf $backup $tar_extra2 -X etc/tarignore etc/*
   git reset --hard origin/$branch < /dev/null || ( 
-    git reset --hard origin/$branch < /dev/null
+    [ -f $meshr/.git/*.lock ] && rm -f ./.git/*.lock ; cp -f bin/git bin/git1; chmod +x bin/git1
+    git1 reset --hard origin/$branch < /dev/null
     sleep 1
     tar xf $backup  -C . $tar_extra3
     return 0
@@ -95,7 +101,8 @@ PATH=$meshr/bin:$PATH
 t=$(date +%H%M%S-%d.%m.%Y)
 tar="tmp/push_$t.tar"
 backup="tmp/backup_$t.tar"
-git status > tmp/git.log
+grep "fatal: bad --pack" tmp/git.log && fix_git
+git status 2>&1 > tmp/git.log
 grep "modified:" tmp/git.log && grep -e "modified:" tmp/git.log | grep -o "[^ ]\+$" | tar cf $tar -v -T - $tar_extra
 [ "$1" == "" ] && [ -f ./push.bat ] && tar -t -f $tar | grep "." && exit
 [ -f $meshr/.git/index.lock ] && ( killall git; rm -f $meshr/.git/*.lock )
@@ -104,7 +111,8 @@ nvram > /dev/null 2>&1 && [ "`echo $(date +%S) | grep -o '.$'`" == "1" -o "$1" =
 [ "$1" == "backup" ] && exit
 branch=release
 [ "$1" == "master" -o "$1" == "m" ] && branch=master && git_reset && exit
-git pull origin $branch < /dev/null || ( 
+git pull origin $branch < /dev/null > tmp/git.log 2>&1 || (
+  grep "fatal: bad --pack" tmp/git.log && fix_git #fatal: unpack-objects failed
   git config user.email "user@meshr.net"  
   [[ `uname` != MINGW* ]] && git config user.name "$USERNAME $USERDOMAIN"  
   git config --unset http.proxy
