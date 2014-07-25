@@ -155,7 +155,7 @@ COMMENT1
       fi     
       [ -z $linux ] && cp -f $meshr/etc/DualServer $meshr/bin/DualServer.ini &&  sed -i "s/10.177.0.1/$ip4addr/g" $meshr/bin/DualServer.ini
       [ -f $meshr/etc/wlan/$ssid.txt ] || ( cp $meshr/etc/wlan/ssid.txt $meshr/etc/wlan/$ssid.txt )
-      sed -i "s/IPAddress=.*/IPAddress=$ip4addr/g" $meshr/etc/wlan/$ssid.txt
+      sed -i "s/^IPAddress=.*$/IPAddress=$ip4addr/g" $meshr/etc/wlan/$ssid.txt
       [ -z $linux ] && chmod 777 $meshr/etc/wlan/$ssid.txt
       #TODO: check Internet; add to uci
       uci set wireless.$device\_iface.ip4addr=$ip4addr

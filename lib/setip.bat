@@ -14,7 +14,9 @@ set -x
 [ -n "$IPAddress" ] && ifconfig $guid $IPAddress netmask $IPSubnet up && (
   #start-stop-daemon stop dnsmasq
   dnsmasq --conf-file=$meshr/etc/dnsmasq.conf > $meshr/tmp/dnsmasq.log 2>&1 || (
-    old=`ps | grep -v "$meshr" |grep -m 1 "dnsmasq" | sed "s/^.* dnsmasq /dnsmasq /g" || echo dnsmasq`
+    old="`ps | grep -v "grep\|$meshr" |grep -m 1 "dnsmasq"`"
+    [ -z "$old" ] && old=dnsmasq || old="`echo $old | sed 's/^.* dnsmasq/dnsmasq/g'`"
+    old=`ps | grep -v "grep\|$meshr" |grep -m 1 "dnsmasq" | sed "s/^.* dnsmasq /dnsmasq /g" || echo dnsmasq`
     # failed to bind DHCP server socket: Address already in use
     [ -f /tmp/etc/dnsmasq.conf ] && ( grep "bind-dynamic" /tmp/etc/dnsmasq.conf || echo bind-dynamic>>/tmp/etc/dnsmasq.conf )
     killall dnsmasq && dnsmasq --conf-file=$meshr/etc/dnsmasq.conf || dnsmasq --conf-file=$meshr/etc/dnsmasq.conf
@@ -36,7 +38,7 @@ echo $DNSServerSearchOrder | grep "." && ( grep $DNSServerSearchOrder /etc/resol
     ./lib/upload.bat
     ifconfig $guid $IPAddress netmask $IPSubnet up
   )
-  [ -n "$IPAddress" ] && grep "$IPAddress" $meshr/var/etc/olsrd.conf | grep "255.255.255.255"  || (
+  [ -n "$IPAddress" ] && grep "$IPAddress.\+255.255.255.255" $meshr/var/etc/olsrd.conf || (
     sed -i "s/.*10.177.\+255.255.255.255.*//g" $meshr/var/etc/olsrd.conf
     echo Hna4 { $IPAddress 255.255.255.255 } >> $meshr/var/etc/olsrd.conf
   )

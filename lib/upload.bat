@@ -40,6 +40,6 @@ curl -s -k -d "slot1=${MACAddress//:/-}_$KEY_NAME&slot2=$IPAddress" --data-binar
 newIP=`cat $meshr/tmp/curl.htm | head -n 1 | grep -E "^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"`
 [ -n "$newIP" ] && {
       [ -n "$IPAddress" ] && [ ! "$newIP" == "$IPAddress" ] && sed -i "s/$IPAddress/$newIP/g" $meshr/etc/dnsmasq.conf
-      sed -i "s/IPAddress=.*/IPAddress=$newIP/g" $meshr/etc/wlan/meshr.net.txt
+      sed -i "s/^IPAddress=.*$/IPAddress=$newIP/g" $meshr/etc/wlan/meshr.net.txt
 }
 cd ..

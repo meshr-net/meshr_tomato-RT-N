@@ -7,22 +7,25 @@ start(){
   # $meshr/bin/failsafe.sh ?
   for n in $names; do
      #[ ! -f $meshr/var/run/$n.pid ] && 
-     #( nohup $@ && echo $!>$meshr/var/run/$(basename $n).pid ) &
+     #( nohup $@ && echo $!>$meshr/var/run/$(basename $n).pid ) & #>/dev/null 2>&1 &
      cmd="$@"
-     setsid nohup /bin/sh -c "$cmd" > $meshr/tmp/nohup.out 2>&1 & #>/dev/null 2>&1 &
-     echo $!>$meshr/var/run/$(basename $n).pid 
+     setsid nohup /bin/sh -c "while true; do $cmd; sleep 2;done" \> /tmp/nohup.out 2>&1 &
+     #setsid nohup /bin/sh -c "$cmd" \> $meshr/tmp/nohup.out 2>&1 &
+     (sleep 1 && echo $! > $meshr/var/run/`basename $n`.pid  )& #nfs workaround
+     #echo $! > /tmp/`basename $n`.pid 
+     #(sleep 1 && cp /tmp/`basename $n`.pid  $meshr/var/run/`basename $n`.pid )& #nfs workaround
+     #echo $! > $meshr/var/run/`basename $n`.pid 
   done
 }
 stop(){
   echo $names
   for n in $names; do
     name=$(basename $n)
-    ( cat $meshr/var/run/$name.pid | grep .. || ps | grep "$n" | grep -v "grep\|$$" | awk '{print $1}' | tr '\n' ' ' > $meshr/var/run/$name.pid ) && (
-      pid=`cat $meshr/var/run/$name.pid`
-      [ -n "$pid" ] && kill -s TERM -$pid || kill -9 $pid
-      rm $meshr/var/run/$name.pid
-      #mv -f $meshr/var/run/$name.pid $meshr/var/run/$name.pid.tmp
-    )
+    pid=`cat $meshr/var/run/$name.pid`
+    [ -z "$pid" ] && pid=`ps | grep "$n" | grep -v "grep\|$$" | awk '{print $1}' | tr '\n' ' '`
+    [ -n "$pid" ] && ( kill -s TERM -`echo $pid | grep -o "^[0-9]*"` || kill -9 $pid )
+    #rm $meshr/var/run/$name.pid
+    mv -f $meshr/var/run/$name.pid $meshr/var/run/$name.pid.tmp
   done
 }
 action=$1

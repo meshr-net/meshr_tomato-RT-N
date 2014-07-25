@@ -102,8 +102,10 @@ PATH=$meshr/bin:$PATH
 t=$(date +%H%M%S-%d.%m.%Y)
 tar="tmp/push_$t.tar"
 backup="tmp/backup_$t.tar"
+sync
 grep "fatal: bad --pack" tmp/git.log && fix_git
 git status 2>&1 > tmp/git.log
+sync
 grep -e "modified:" tmp/git.log | grep -o "[^ ]\+$" | tar cf $tar -v -T - $tar_extra
 [ "$1" == "" ] && [ -f ./push.bat ] && tar -t -f $tar | grep "." && exit
 [ -f $meshr/.git/index.lock ] && ( killall git; rm -f $meshr/.git/*.lock )

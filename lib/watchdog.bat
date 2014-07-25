@@ -16,11 +16,11 @@ exec 2>&1
 wl_status() {
   local guid=$1
   if [ -n "$wl" ]; then
-    wl -i $guid status  > $meshr/tmp/wlan.log
-    grep -q "\"off\"\|error" $meshr/tmp/wlan.log && status="error"
-    grep -q "SSID: \"$ssid\"" $meshr/tmp/wlan.log && status="connected to $ssid"
-    grep -q "formed: \"$ssid\"" $meshr/tmp/wlan.log && status="formed $ssid"
-    grep -q "Not associated\|disconnected: \"$ssid\"" $meshr/tmp/wlan.log && status="disconnected"
+    wl -i $guid status  > /tmp/wlan.log
+    grep -q "\"off\"\|error" /tmp/wlan.log && status="error"
+    grep -q "SSID: \"$ssid\"" /tmp/wlan.log && status="connected to $ssid"
+    grep -q "formed: \"$ssid\"" /tmp/wlan.log && status="formed $ssid"
+    grep -q "Not associated\|disconnected: \"$ssid\"" /tmp/wlan.log && status="disconnected"
   fi  
   [ -n "$iwconfig" ] && iwconfig $guid 
 }
@@ -49,16 +49,18 @@ do
    # connecting to meshr.net
    if [ "$status" == "connected to $ssid" ]; then
       #get current settings
-      echo IPAddress=`ip -o -4 addr list $guid | awk '{print $4}' | cut -d/ -f1` > $meshr/var/run/wifi.txt
-      echo IPSubnet=`ifconfig $guid | grep "Mask:" | sed "s/.*Mask:\(.*\)/\1/g"` > $meshr/var/run/wifi.txt
-      brctl show | while read line; do
+      ( echo IPAddress=`ip -o -4 addr list $guid | awk '{print $4}' | cut -d/ -f1` 
+        echo IPSubnet=`ifconfig $guid | grep "Mask:" | sed "s/.*Mask:\(.*\)/\1/g"`
+        brctl show > /tmp/brctl.log 
+        while read line; do
           echo $line | grep -q " " && br=`echo $line | sed "s/ .*//g"`
           if [ "$line" == "$guid" ]; then
-            echo echo Bridge=$br> $meshr/var/run/wifi.txt
+            echo echo Bridge=$br
             brctl delif $br $guid
             break
           fi  
-        done
+        done < /tmp/brctl.log ) > /tmp/wifi.txt
+      cp /tmp/wifi.txt $meshr/var/run/wifi.txt
       # TODO: save routes? route | grep $guid to $DefaultIPGateway + restore in setip
       # run DHCP server ASAP
     
