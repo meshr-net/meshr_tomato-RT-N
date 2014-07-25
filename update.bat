@@ -106,7 +106,7 @@ sync
 grep "fatal: bad --pack" tmp/git.log && fix_git
 git status 2>&1 > tmp/git.log
 sync
-grep -e "modified:" tmp/git.log | grep -o "[^ ]\+$" | tar cf $tar -v -T - $tar_extra
+grep -e "modified:" tmp/git.log && grep -e "modified:" tmp/git.log | grep -o "[^ ]\+$" | tar cf $tar -v -T - $tar_extra
 [ "$1" == "" ] && [ -f ./push.bat ] && tar -t -f $tar | grep "." && exit
 [ -f $meshr/.git/index.lock ] && ( killall git; rm -f $meshr/.git/*.lock )
 nvram > /dev/null 2>&1 && [ "`echo $(date +%S) | grep -o '.$'`" == "1" -o "$1" == "backup"  ] && ( meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`"

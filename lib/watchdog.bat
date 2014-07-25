@@ -8,19 +8,20 @@ rm $meshr/var/run/wifi.txt $meshr/var/run/wifi-formed.txt
 . $meshr/etc/wlan/$ssid.txt
 wl=1
 status=0
-PATH="$meshr/bin:$PATH"
-set -x
-exec 1>$meshr/tmp/wd.log
-exec 2>&1
+which find && alias find=`which find`
+PATH="$meshr/bin:/sbin:/bin:/usr/sbin:/usr/bin" #$PATH" grep Segmentation fault
+#set -x
+#exec 1>$meshr/tmp/wd.log
+#exec 2>&1
 
 wl_status() {
   local guid=$1
   if [ -n "$wl" ]; then
-    wl -i $guid status  > /tmp/wlan.log
-    grep -q "\"off\"\|error" /tmp/wlan.log && status="error"
-    grep -q "SSID: \"$ssid\"" /tmp/wlan.log && status="connected to $ssid"
-    grep -q "formed: \"$ssid\"" /tmp/wlan.log && status="formed $ssid"
-    grep -q "Not associated\|disconnected: \"$ssid\"" /tmp/wlan.log && status="disconnected"
+    wl -i $guid status  > $meshr/tmp/wlan.log
+    grep -q "\"off\"\|error" $meshr/tmp/wlan.log && status="error"
+    grep -q "SSID: \"$ssid\"" $meshr/tmp/wlan.log && status="connected to $ssid"
+    grep -q "formed: \"$ssid\"" $meshr/tmp/wlan.log && status="formed $ssid"
+    grep -q "Not associated\|disconnected: \"$ssid\"" $meshr/tmp/wlan.log && status="disconnected"
   fi  
   [ -n "$iwconfig" ] && iwconfig $guid 
 }

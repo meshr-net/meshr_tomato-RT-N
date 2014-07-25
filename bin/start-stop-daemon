@@ -10,8 +10,9 @@ start(){
      #( nohup $@ && echo $!>$meshr/var/run/$(basename $n).pid ) & #>/dev/null 2>&1 &
      cmd="$@"
      setsid nohup /bin/sh -c "while true; do $cmd; sleep 2;done" > /tmp/nohup.out 2>&1 &
+     setsid nohup /bin/sh -c "sleep 1; echo $!" > $meshr/var/run/`basename $n`.pid &
+     #(sleep 1 && echo $! > $meshr/var/run/`basename $n`.pid  )& #nfs workaround
      #setsid nohup /bin/sh -c "$cmd" \> $meshr/tmp/nohup.out 2>&1 &
-     (sleep 1 && echo $! > $meshr/var/run/`basename $n`.pid  )& #nfs workaround
      #echo $! > /tmp/`basename $n`.pid 
      #(sleep 1 && cp /tmp/`basename $n`.pid  $meshr/var/run/`basename $n`.pid )& #nfs workaround
      #echo $! > $meshr/var/run/`basename $n`.pid 
