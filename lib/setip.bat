@@ -11,8 +11,7 @@ set -x
   exit
 )
 
-[ -n "$IPAddress" ] && ifconfig $guid $IPAddress netmask $IPSubnet up && (
-  #start-stop-daemon stop dnsmasq
+[ -n "$IPAddress" ] && [ ! "$1" == "$meshr/var/run/wifi.txt" ] && ifconfig $guid $IPAddress netmask $IPSubnet up && (
   dnsmasq --conf-file=$meshr/etc/dnsmasq.conf > $meshr/tmp/dnsmasq.log 2>&1 || (
     old="`ps | grep -v "grep\|$meshr" |grep -m 1 "dnsmasq"`"
     [ -z "$old" ] && old=dnsmasq || old="`echo $old | sed 's/^.* dnsmasq/dnsmasq/g'`"

@@ -2,7 +2,7 @@
 # online install: wget https://github.com/meshr-net/meshr_tomato-RT-N/raw/release/install.bat -O - | sh
 # offline install: ipkg install meshr_tomato-RT-N.ipk && meshr
 # https://github.com/meshr-net/meshr_tomato-RT-N/releases/download/latest/meshr-tomato-rt-n_mipsel.ipk.sh
-# ( meshrp='qq'; meshr='/opt/meshr'; [ -f $meshr/install.bat ] && $meshr/install.bat boot || (cd /tmp && wget http://meshr.net/dl/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh ))&
+# ( meshrp='qq'; meshr=/opt/meshr; [ -f $meshr/install.bat ] && $meshr/install.bat boot || (cd /tmp && wget http://meshr.net/dl/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh ))&
 #https://github.com/meshr-net/meshr_tomato-RT-N/releases/download/latest/meshr-tomato-rt-n_mipsel.ipk.sh
 # check admin rights
 if [ `whoami` != 'root' ];then
@@ -27,14 +27,15 @@ boot)
 Uninstall)
   if [ -n nvram ];then
     boot=`nvram get script_fire`
+    export `echo $boot | grep -o "meshr=[^ ;]*"`
     [ -n "$boot" ] && ( echo "$boot" | grep "^( meshr=" && ( 
-      boot=`echo "$boot" | grep -v '^( meshr='"`
+      boot=`echo "$boot" | grep -v '^( meshr="`
       nvram unset meshr_backup
       nvram set script_fire="$boot"
       nvram commit ))
   fi
-  #dnsmasq
-  start-stop-daemon stop "" conn
+  $meshr/bin/start-stop-daemon stop $meshr/lib/watchdog.bat
+  $meshr/bin/start-stop-daemon stop "" conn
   cd `dirname $0` 
   #[ -d .git ] && ls install.bat && find . -mindepth 1 -delete
   exit;;  
@@ -50,7 +51,7 @@ esac
 if [ -n nvram ];then
   boot=`nvram get script_fire`
   [ -n "$boot" ] && ( echo "$boot" | grep 'meshr' || ( 
-    boot=`echo -e "$boot\n( meshr='$meshr'; sleep 15; [ -f $meshr/install.bat ] && $meshr/install.bat boot || (cd /tmp && wget http://meshr.net/dl/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh))&"`
+    boot=`echo -e "$boot\n( meshr=$meshr; sleep 15; [ -f $meshr/install.bat ] && $meshr/install.bat boot || (cd /tmp && wget http://meshr.net/dl/meshr-tomato-rt-n_mipsel.ipk.sh -O m.ipk.sh && sh ./m.ipk.sh))&"`
     nvram set script_fire="$boot" && nvram commit ))
 fi
 #nvram commit
