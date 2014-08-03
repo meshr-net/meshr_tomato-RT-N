@@ -1,4 +1,5 @@
 rem <<BATFILE
+rem webif default url is http://127.0.0.1:8084/
 SET meshr=%~dp0
 set meshr=%meshr:~0,-1%
 

@@ -136,7 +136,7 @@ done
 
 ##### Reboot the router (because simply restarting services gave errors)
 
-echo "+ The wizard has finished and the router will reboot now."
+echo "+ The wizard has finished and the meshr/lib/watchdog.bat will be restarted now."
 
 #reboot
 ##./olsrd reload generates /var/etc/olsrd.conf

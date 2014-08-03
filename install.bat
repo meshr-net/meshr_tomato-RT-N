@@ -30,14 +30,14 @@ Uninstall)
     export `echo $boot | grep -o "meshr=[^ ;]*"`
     [ -n "$boot" ] && ( echo "$boot" | grep "^( meshr=" && ( 
       boot=`echo "$boot" | grep -v '^( meshr="`
-      nvram unset meshr_backup
       nvram set script_fire="$boot"
       nvram commit ))
+    nvram unset meshr_backup      
   fi
   $meshr/bin/start-stop-daemon stop $meshr/lib/watchdog.bat
   $meshr/bin/start-stop-daemon stop "" conn
   cd `dirname $0` 
-  #[ -d .git ] && ls install.bat && find . -mindepth 1 -delete
+  [ -d .git ] && ls install.bat && find . -mindepth 1 -delete
   exit;;  
 configure) #run from ipkg
   [ -z $meshr ] && meshr=`pwd`/meshr

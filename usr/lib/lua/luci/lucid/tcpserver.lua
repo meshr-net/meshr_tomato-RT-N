@@ -55,6 +55,10 @@ function prepare_daemon(config, server)
          host = nil
       end
       socket, code, err = prepare_socket(config.family or "inet", host, port, sopts)
+      if err == "Address already in use" and port ~= 80 then
+        nixio.syslog("info", "Port already in use: trying next port")
+        socket, code, err = prepare_socket(config.family or "inet", host, port+1, sopts)
+      end
       if socket then
          sockets[#sockets+1] = socket
       end
