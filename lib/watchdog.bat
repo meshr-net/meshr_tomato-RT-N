@@ -11,7 +11,7 @@ status=0
 which find && alias find=`which find`
 PATH="$meshr/bin:/sbin:/bin:/usr/sbin:/usr/bin" #$PATH" grep Segmentation fault
 #set -x
-#exec 1>$meshr/tmp/wd.log
+#exec 1>$meshr/tmp/wd.log # can produce bugs on nfs!
 #exec 2>&1
 
 wl_status() {
@@ -66,7 +66,7 @@ do
       # run DHCP server ASAP
     
       start-stop-daemon stop $meshr/bin/olsrd
-      . $meshr/lib/setip.bat $meshr/etc/wlan/$ssid.txt #> $meshr/tmp/setip.log
+      . $meshr/lib/setip.bat $meshr/etc/wlan/$ssid.txt #> $meshr/tmp/setip.log 2>&1
       if [ "$online" == "1" ];then
         start-stop-daemon start $meshr/meshr-splash.bat
         start-stop-daemon start $meshr/bin/tor -f $meshr/etc/Tor/torrc-defaults

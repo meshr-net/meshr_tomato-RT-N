@@ -1,16 +1,20 @@
 #!/bin/sh
 #ex. start-stop-daemon start "" update
-set -x
+#set -x
 [ -z $meshr ] && cd `dirname $0`/.. && meshr=`pwd`
-setsid --help > /dev/null || alias setsid=
+/opt/bin/setsid --help > /dev/null && alias setsid=/opt/bin/setsid || alias setsid=
+
 start(){
   # $meshr/bin/failsafe.sh ?
   for n in $names; do
      #[ ! -f $meshr/var/run/$n.pid ] && 
      #( nohup $@ && echo $!>$meshr/var/run/$(basename $n).pid ) & #>/dev/null 2>&1 &
-     cmd="$@"
-     setsid nohup /bin/sh -c "while true; do $cmd; sleep 2;done" > /tmp/nohup.out 2>&1 &
-     setsid nohup /bin/sh -c "sleep 1; echo $!" > $meshr/var/run/`basename $n`.pid &
+     cmd="while true; do $@; sleep 2;done"
+     pid=$meshr/var/run/`basename $n`.pid
+     #sync
+     setsid nohup /bin/sh -c "$cmd" > /dev/null 2>&1 &
+     #sync
+     setsid nohup /bin/sh -c "sleep 1; echo $!" > $pid &
      #(sleep 1 && echo $! > $meshr/var/run/`basename $n`.pid  )& #nfs workaround
      #setsid nohup /bin/sh -c "$cmd" \> $meshr/tmp/nohup.out 2>&1 &
      #echo $! > /tmp/`basename $n`.pid 
@@ -25,7 +29,7 @@ stop(){
     pid="`cat $meshr/var/run/$name.pid`"
     [ -z "$pid" ] && pid=`ps | grep "$n" | grep -v "grep\|$$" | awk '{print $1}' | tr '\n' ' '`
     #pid2="`ps | grep "$n" | grep -v "grep\|$$" | awk '{print $1}' | tr '\n' ' '`" #-o -n "$pid2"
-    [ -n "$pid" ] && ( kill -s TERM -`echo $pid | grep -o "^[0-9]*"` || kill -9 $pid )
+    [ -n "$pid" ] && ( kill -s TERM -`echo $pid | grep -o "^[0-9]*"` || kill -9 $pid `ps | grep "$n" | grep -v "grep\|$$" | awk '{print $1}' | tr '\n' ' '` )
     rm $meshr/var/run/$name.pid
     #mv -f $meshr/var/run/$name.pid $meshr/var/run/$name.pid.tmp
   done

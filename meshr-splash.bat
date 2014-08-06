@@ -32,4 +32,4 @@ export LUCI_SYSROOT="$P"
 export meshr="$P"
 
 #firewall
-$P/bin/lua $P/lucid.lua --splash
+$P/bin/lua $P/lucid.lua --splash $0
