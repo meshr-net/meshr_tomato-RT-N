@@ -21,7 +21,6 @@ start(){
      #echo $! > $meshr/var/run/`basename $n`.pid 
   done
 }
-
 stop(){
   echo $names
   for n in $names; do
