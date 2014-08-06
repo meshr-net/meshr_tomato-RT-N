@@ -21,6 +21,7 @@ start(){
      #echo $! > $meshr/var/run/`basename $n`.pid 
   done
 }
+
 stop(){
   echo $names
   for n in $names; do
@@ -33,6 +34,7 @@ stop(){
     #mv -f $meshr/var/run/$name.pid $meshr/var/run/$name.pid.tmp
   done
 }
+
 action=$1
 a2=$2
 names=$2
