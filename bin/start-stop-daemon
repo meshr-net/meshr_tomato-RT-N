@@ -28,7 +28,10 @@ stop(){
     pid="`cat $meshr/var/run/$name.pid`"
     [ -z "$pid" ] && pid=`ps | grep "$n" | grep -v "grep\|$$" | awk '{print $1}' | tr '\n' ' '`
     #pid2="`ps | grep "$n" | grep -v "grep\|$$" | awk '{print $1}' | tr '\n' ' '`" #-o -n "$pid2"
-    [ -n "$pid" ] && ( kill -s TERM -`echo $pid | grep -o "^[0-9]*"` || kill -9 $pid `ps | grep "$n" | grep -v "grep\|$$" | awk '{print $1}' | tr '\n' ' '` )
+    [ -n "$pid" ] && ( 
+      kill -s TERM -`echo $pid | grep -o "^[0-9]*"` 
+      kill -9 $pid `ps | grep "$n" | grep -v "grep\|$$" | awk '{print $1}' | tr '\n' ' '`
+    )
     rm $meshr/var/run/$name.pid
     #mv -f $meshr/var/run/$name.pid $meshr/var/run/$name.pid.tmp
   done
