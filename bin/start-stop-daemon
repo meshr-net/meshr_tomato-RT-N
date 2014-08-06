@@ -5,7 +5,6 @@
 /opt/bin/setsid --help > /dev/null && alias setsid=/opt/bin/setsid || alias setsid=
 
 start(){
-  # $meshr/bin/failsafe.sh ?
   for n in $names; do
      #[ ! -f $meshr/var/run/$n.pid ] && 
      #( nohup $@ && echo $!>$meshr/var/run/$(basename $n).pid ) & #>/dev/null 2>&1 &
