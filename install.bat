@@ -28,7 +28,7 @@ Uninstall)
   if [ -n nvram ];then
     boot=`nvram get script_fire`
     export `echo $boot | grep -o "meshr=[^ ;]*"`
-    [ -n "$boot" ] && ( echo "$boot" | grep "^( meshr=" && ( 
+    [ -n "$boot" ] && ( echo "$boot" | grep "( meshr=" || ( 
       boot=`echo "$boot" | grep -v '^( meshr="`
       nvram set script_fire="$boot"
       nvram commit ))
