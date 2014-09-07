@@ -36,7 +36,7 @@ Uninstall)
   fi
   $meshr/bin/start-stop-daemon stop $meshr/lib/watchdog.bat
   $meshr/bin/start-stop-daemon stop "" conn
-  $meshr/bin/start-stop-daemon stop $meshr/lib/lucid.bat
+  $meshr/bin/start-stop-daemon stop $meshr/lucid.bat
   cd `dirname $0` 
   [ -d .git ] && ls install.bat && find . -mindepth 1 -delete
   exit;;  

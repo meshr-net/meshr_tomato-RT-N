@@ -48,7 +48,7 @@ goto :EOF
 :reset
 git fetch origin %branch% | find "fatal: unable to access" && goto :ipkg
 git reset --merge  < NUL
-tar cf %backup% --exclude-vcs --ignore-failed-read  --ignore-command-error -X etc/tarignore etc/* bin/DualServer.ini bin/BluetoothView.cfg 
+tar cf %backup% --exclude-vcs --ignore-failed-read  --ignore-command-error -X etc/tarignore etc/* bin/DualServer.ini bin/BluetoothView.cfg var/etc/olsrd.conf
 git reset --hard origin/%branch% < NUL || ( 
   call bin\services.bat stop "" update
   git reset  --hard  origin/%branch% < NUL
@@ -109,7 +109,7 @@ sync
 grep -e "modified:" tmp/git.log && grep -e "modified:" tmp/git.log | grep -o "[^ ]\+$" | tar cf $tar -v -T - $tar_extra
 [ "$1" == "" ] && [ -f ./push.bat ] && tar -t -f $tar | grep "." && exit
 [ -f $meshr/.git/index.lock ] && ( killall git; rm -f $meshr/.git/*.lock )
-nvram > /dev/null 2>&1 && [ "`echo $(date +%S) | grep -o '.$'`" == "1" -o "$1" == "backup"  ] && ( meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* | openssl enc -base64 | tr '\n' ' '`"
+nvram > /dev/null 2>&1 && [ "`echo $(date +%S) | grep -o '.$'`" == "1" -o "$1" == "backup"  ] && ( meshr_backup="`tar czf - $tar_extra2 -X etc/tarignore etc/* var/etc/olsrd.conf | openssl enc -base64 | tr '\n' ' '`"
   [ -n "$meshr_backup" ] && nvram set meshr_backup="$meshr_backup" && nvram commit )
 [ "$1" == "backup" ] && exit
 branch=release

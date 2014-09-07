@@ -12,6 +12,7 @@ You may obtain a copy of the License at
 ]]
                           
 local rootfs = rootfs or ""
+local hostos = hostos or ""
 local fs = require "luci.fs"
 local util = require "luci.util"
 local uci = require "luci.model.uci".cursor()
@@ -49,7 +50,8 @@ function n.on_after_commit(self)
     print(ipv4)
     --os.execute(rootfs .. "/lib/upload.bat >> " .. rootfs .. "/messages.log 2>&1")
     if ipv4 then
-      os.execute("sed -i \"s/\\(.*_ip4addr'\\).*/\\1 '" .. ipv4 .. "'/g\" " .. rootfs .. "/etc/config/meshwizard")
+      local pref = hostos:sub(1,3) == 'win' and 'Quiet ' or ''
+      os.execute(pref .. "sed -i \"s/\\(.*_ip4addr'\\).*/\\1 '" .. ipv4 .. "'/g\" " .. rootfs .. "/etc/config/meshwizard")
     end
   end  
 end

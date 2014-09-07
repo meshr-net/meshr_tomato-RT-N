@@ -74,5 +74,4 @@ else
 fi
 uci commit network 
 uci commit meshwizard
-
 $meshr/usr/bin/meshwizard/wizard.sh

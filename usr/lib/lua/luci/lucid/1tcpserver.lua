@@ -46,7 +46,11 @@ function prepare_daemon(config, server)
       local host, port = addr:match("(.-):?([^:]*)$")
       if smode then
         host = fs.readfile(rootfs .. "/etc/config/meshwizard"):match( "ip4addr' '([%d%.]+)'") or ''
-        port = 80
+        if string.match(port, "443")  then
+          port = 443
+        else
+          port = 80
+        end  
       end
       if not host then
          nixio.syslog("err", "Invalid address: " .. addr)
