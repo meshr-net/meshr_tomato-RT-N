@@ -131,7 +131,7 @@ Notes:
     most recent version from master (pre-release) branch. It also
     updates ipkg software list.
     
-##### .
+
 
 ### How it works?
     
